@@ -29,7 +29,7 @@ struct MainWindowView: View {
     
     // Inspector/sidebar visibility
     @State private var sidebarVisibility: NavigationSplitViewVisibility = .automatic
-    @State private var inspectorVisibility: NavigationSplitViewVisibility = .automatic
+    @State private var showInspector: Bool = true
     @State private var selectedSidebarItem: SidebarItem? = .keyShapes
     
     enum SidebarItem: String, Identifiable {
@@ -49,7 +49,11 @@ struct MainWindowView: View {
                 mainContentView
             },
             detail: {
-                inspectorView
+                if showInspector {
+                    inspectorView
+                } else {
+                    EmptyView()
+                }
             }
         )
         .navigationSplitViewStyle(.balanced)
@@ -196,39 +200,56 @@ struct MainWindowView: View {
     }
     
     // MARK: - Main Content
+    @ViewBuilder
     private var mainContentView: some View {
-        Group {
+        let content: AnyView = {
             if selectedSidebarItem == .keyShapes {
-                keyShapesContentView
+                return AnyView(keyShapesContentView)
             } else if selectedSidebarItem == .morphSettings {
-                morphSettingsContentView
+                return AnyView(morphSettingsContentView)
+            } else {
+                return AnyView(keyShapesContentView)
+            }
+        }()
+        
+        content
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                inspectorToggleToolbar
+            }
+            .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
+                updateAudioEngine(frames: newFrames)
+            }
+            .onAppear {
+                updateAudioEngine(frames: projectViewModel.project.generatedFrames)
+            }
+    }
+    
+    private var navigationTitle: String {
+        selectedSidebarItem == .keyShapes ? "Key Shapes" : "Morph Settings"
+    }
+    
+    @ToolbarContentBuilder
+    private var inspectorToggleToolbar: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: toggleInspector) {
+                Image(systemName: showInspector ? "sidebar.right" : "sidebar.right")
+                    .symbolVariant(showInspector ? .fill : .none)
             }
         }
-        .navigationTitle(selectedSidebarItem == .keyShapes ? "Key Shapes" : "Morph Settings")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { 
-                    inspectorVisibility = inspectorVisibility == .visible ? .hidden : .visible 
-                }) {
-                    Image(systemName: inspectorVisibility == .visible ? "sidebar.right" : "sidebar.right")
-                }
-            }
-        }
-        .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
-            audioEngine.updateWavetable(
-                frames: newFrames,
-                sampleRate: projectViewModel.project.sampleRate,
-                samplesPerFrame: projectViewModel.project.samplesPerFrame
-            )
-        }
-        .onAppear {
-            audioEngine.updateWavetable(
-                frames: projectViewModel.project.generatedFrames,
-                sampleRate: projectViewModel.project.sampleRate,
-                samplesPerFrame: projectViewModel.project.samplesPerFrame
-            )
-        }
+    }
+    
+    private func toggleInspector() {
+        showInspector.toggle()
+    }
+    
+    private func updateAudioEngine(frames: [[Float]]) {
+        audioEngine.updateWavetable(
+            frames: frames,
+            sampleRate: projectViewModel.project.sampleRate,
+            samplesPerFrame: projectViewModel.project.samplesPerFrame
+        )
     }
     
     private var keyShapesContentView: some View {
