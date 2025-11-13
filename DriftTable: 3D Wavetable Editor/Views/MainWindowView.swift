@@ -285,155 +285,151 @@ struct MainWindowView: View {
             let isPhone = UIDevice.current.userInterfaceIdiom == .phone
             
             if isPhone && isPortrait {
-                // Portrait iPhone layout: wavetable on top, tools at bottom
-                VStack(spacing: 0) {
-                    // Compact toolbar
-                    compactToolbar
-                    
-                    // Wavetable/Waveform area
-                    ZStack {
-                        if !projectViewModel.project.generatedFrames.isEmpty {
-                            WavetablePreviewView(
-                                frames: projectViewModel.project.generatedFrames,
-                                samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                                position: $audioEngine.wavetablePosition
-                            )
-                        } else if let currentShape = projectViewModel.currentKeyShape {
-                            WaveEditorView(
-                                samples: currentShape.samples,
-                                samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                                selectedTool: toolsViewModel.selectedTool,
-                                toolsViewModel: toolsViewModel,
-                                onSamplesChanged: { newSamples in
-                                    handleSamplesChanged(newSamples)
-                                }
-                            )
-                            .onChange(of: toolsViewModel.liftDropAmount) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.pinchPosition) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.pinchStrength) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.arcStartPosition) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.arcEndPosition) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.arcCurvature) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.tiltAmount) { _, _ in debouncedApplyTool() }
-                            .onChange(of: toolsViewModel.symmetryAmount) { _, _ in debouncedApplyTool() }
-                        } else {
-                            emptyStateView
-                        }
-                    }
-                    .frame(maxHeight: .infinity)
-                    
-                    // Tools panel at bottom (always visible in portrait)
-                    VStack(spacing: 0) {
-                        Divider()
-                        
-                        // Tool tab selector
-                        Picker("", selection: $selectedToolTab) {
-                            Text("Shape").tag(0)
-                            Text("Flow").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            if selectedToolTab == 0 {
-                                ToolSidebarView(
-                                    toolsViewModel: toolsViewModel,
-                                    projectViewModel: projectViewModel
-                                )
-                                .frame(width: 800)
-                                .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
-                                    toolApplicationTask?.cancel()
-                                    if newTool != .smoothBrush,
-                                       let currentShapeId = projectViewModel.selectedKeyShapeId {
-                                        if let current = projectViewModel.currentKeyShape {
-                                            projectViewModel.updateOriginalKeyShape(id: currentShapeId, shape: current)
-                                        }
-                                    }
-                                }
-                            } else {
-                                FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
-                                    .frame(width: 800)
-                            }
-                        }
-                        .frame(height: 180)
-                        .background(Color(UIColor.secondarySystemBackground))
-                    }
-                    
-                    // Audio Preview
-                    AudioPreviewView(audioEngine: audioEngine)
-                }
+                portraitLayout
             } else {
-                // Landscape or iPad layout (original)
-                VStack(spacing: 0) {
-                    compactToolbar
-                    
-                    GeometryReader { _ in
-                        ZStack {
-                            if !projectViewModel.project.generatedFrames.isEmpty {
-                                WavetablePreviewView(
-                                    frames: projectViewModel.project.generatedFrames,
-                                    samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                                    position: $audioEngine.wavetablePosition
-                                )
-                            } else if let currentShape = projectViewModel.currentKeyShape {
-                                WaveEditorView(
-                                    samples: currentShape.samples,
-                                    samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                                    selectedTool: toolsViewModel.selectedTool,
-                                    toolsViewModel: toolsViewModel,
-                                    onSamplesChanged: { newSamples in
-                                        handleSamplesChanged(newSamples)
-                                    }
-                                )
-                                .onChange(of: toolsViewModel.liftDropAmount) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.pinchPosition) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.pinchStrength) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.arcStartPosition) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.arcEndPosition) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.arcCurvature) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.tiltAmount) { _, _ in debouncedApplyTool() }
-                                .onChange(of: toolsViewModel.symmetryAmount) { _, _ in debouncedApplyTool() }
-                            } else {
-                                emptyStateView
-                            }
-                            
-                            if isPhone {
-                                VStack {
-                                    HStack {
-                                        Spacer()
-                                        Button(action: toggleInspector) {
-                                            HStack(spacing: 6) {
-                                                Image(systemName: "sidebar.right")
-                                                    .symbolVariant(showInspector ? .fill : .none)
-                                                Text("Inspector")
-                                                    .font(.subheadline)
-                                            }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(showInspector ? Color.accentColor : Color(UIColor.secondarySystemBackground))
-                                            .foregroundColor(showInspector ? .white : .primary)
-                                            .cornerRadius(8)
-                                            .shadow(radius: 4)
-                                        }
-                                        .padding(.trailing, 16)
-                                        .padding(.top, 16)
-                                    }
-                                    Spacer()
-                                }
-                            }
-                        }
+                landscapeLayout
+            }
+        }
+    }
+    
+    private var portraitLayout: some View {
+        VStack(spacing: 0) {
+            compactToolbar
+            waveformArea
+                .frame(maxHeight: .infinity)
+            portraitToolsPanel
+            AudioPreviewView(audioEngine: audioEngine)
+        }
+    }
+    
+    private var landscapeLayout: some View {
+        VStack(spacing: 0) {
+            compactToolbar
+            GeometryReader { _ in
+                ZStack {
+                    waveformContent
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        inspectorOverlayButton
                     }
-                    
-                    AudioPreviewView(audioEngine: audioEngine)
-                        .frame(height: isPhone ? 120 : 150)
                 }
             }
+            AudioPreviewView(audioEngine: audioEngine)
+                .frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 120 : 150)
+        }
+    }
+    
+    @ViewBuilder
+    private var waveformArea: some View {
+        if !projectViewModel.project.generatedFrames.isEmpty {
+            WavetablePreviewView(
+                frames: projectViewModel.project.generatedFrames,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame,
+                position: $audioEngine.wavetablePosition
+            )
+        } else if let currentShape = projectViewModel.currentKeyShape {
+            waveformEditorView(for: currentShape)
+        } else {
+            emptyStateView
+        }
+    }
+    
+    @ViewBuilder
+    private var waveformContent: some View {
+        if !projectViewModel.project.generatedFrames.isEmpty {
+            WavetablePreviewView(
+                frames: projectViewModel.project.generatedFrames,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame,
+                position: $audioEngine.wavetablePosition
+            )
+        } else if let currentShape = projectViewModel.currentKeyShape {
+            waveformEditorView(for: currentShape)
+        } else {
+            emptyStateView
+        }
+    }
+    
+    private func waveformEditorView(for shape: KeyShape) -> some View {
+        WaveEditorView(
+            samples: shape.samples,
+            samplesPerFrame: projectViewModel.project.samplesPerFrame,
+            selectedTool: toolsViewModel.selectedTool,
+            toolsViewModel: toolsViewModel,
+            onSamplesChanged: handleSamplesChanged
+        )
+        .onChange(of: toolsViewModel.liftDropAmount) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.pinchPosition) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.pinchStrength) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.arcStartPosition) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.arcEndPosition) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.arcCurvature) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.tiltAmount) { _, _ in debouncedApplyTool() }
+        .onChange(of: toolsViewModel.symmetryAmount) { _, _ in debouncedApplyTool() }
+    }
+    
+    private var portraitToolsPanel: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            Picker("", selection: $selectedToolTab) {
+                Text("Shape").tag(0)
+                Text("Flow").tag(1)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(UIColor.secondarySystemBackground))
+            
+            toolsContent
+                .frame(height: 180)
+                .background(Color(UIColor.secondarySystemBackground))
+        }
+    }
+    
+    @ViewBuilder
+    private var toolsContent: some View {
+        if selectedToolTab == 0 {
+            ToolSidebarView(
+                toolsViewModel: toolsViewModel,
+                projectViewModel: projectViewModel
+            )
+            .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
+                toolApplicationTask?.cancel()
+                if newTool != .smoothBrush,
+                   let currentShapeId = projectViewModel.selectedKeyShapeId {
+                    if let current = projectViewModel.currentKeyShape {
+                        projectViewModel.updateOriginalKeyShape(id: currentShapeId, shape: current)
+                    }
+                }
+            }
+        } else {
+            FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
+        }
+    }
+    
+    private var inspectorOverlayButton: some View {
+        VStack {
+            HStack {
+                Spacer()
+                Button(action: toggleInspector) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sidebar.right")
+                            .symbolVariant(showInspector ? .fill : .none)
+                        Text("Inspector")
+                            .font(.subheadline)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(showInspector ? Color.accentColor : Color(UIColor.secondarySystemBackground))
+                    .foregroundColor(showInspector ? .white : .primary)
+                    .cornerRadius(8)
+                    .shadow(radius: 4)
+                }
+                .padding(.trailing, 16)
+                .padding(.top, 16)
+            }
+            Spacer()
         }
     }
     

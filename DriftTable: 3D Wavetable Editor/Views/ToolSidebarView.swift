@@ -25,15 +25,15 @@ struct ToolSidebarView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Shape Tools")
                 .font(.headline)
-                .padding(.horizontal)
-                .padding(.top)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
             
-            // Tool selection
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
+            // Tool selection - horizontal scroll for mobile
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
                     ForEach(Tool.allCases) { tool in
                         ToolButton(
                             tool: tool,
@@ -43,20 +43,20 @@ struct ToolSidebarView: View {
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 12)
             }
             
             Divider()
             
             // Tool parameters
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 10) {
                     toolParametersView
                     
                     // Global apply button (only show when frames are generated)
-                    // Note: Real-time updates happen automatically via onChange handlers
                     if hasGeneratedFrames {
                         Divider()
+                            .padding(.vertical, 4)
                         
                         Button(action: {
                             toolsViewModel.applyGlobally?()
@@ -68,10 +68,10 @@ struct ToolSidebarView: View {
                             .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
-                        .help("Manually apply this tool to all frames (auto-applied in real-time)")
+                        .font(.caption)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 12)
             }
             // Real-time global application when parameters change
             .onChange(of: toolsViewModel.selectedTool) { _, _ in
@@ -130,9 +130,7 @@ struct ToolSidebarView: View {
                 }
             }
             
-            Spacer()
         }
-        .frame(minWidth: 200, idealWidth: 250)
     }
     
     @ViewBuilder
@@ -160,17 +158,21 @@ struct ToolSidebarView: View {
     }
     
     private var liftDropParameters: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Amount")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: Binding(
-                get: { Double(toolsViewModel.liftDropAmount) },
-                set: { toolsViewModel.liftDropAmount = Float($0) }
-            ), in: -1.0...1.0)
-            Text(String(format: "%.2f", toolsViewModel.liftDropAmount))
-                .font(.caption)
-                .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Text("Amount")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: Binding(
+                    get: { Double(toolsViewModel.liftDropAmount) },
+                    set: { toolsViewModel.liftDropAmount = Float($0) }
+                ), in: -1.0...1.0)
+                Text(String(format: "%.2f", toolsViewModel.liftDropAmount))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
         }
     }
     

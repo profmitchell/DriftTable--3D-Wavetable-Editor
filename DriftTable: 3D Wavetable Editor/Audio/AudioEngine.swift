@@ -119,14 +119,19 @@ class AudioEngine: ObservableObject {
             return
         }
         
-        // Ensure audio session is active
+        // Ensure audio session is active and properly configured
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            if !audioSession.isOtherAudioPlaying {
-                try audioSession.setActive(true, options: [])
+            // Set category if not already set correctly
+            if audioSession.category != .playback {
+                try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
             }
+            // Activate audio session
+            try audioSession.setActive(true, options: [])
+            print("Audio session activated successfully")
         } catch {
             print("Failed to activate audio session: \(error)")
+            // Don't return - try to continue anyway
         }
         
         // Ensure engine is running
@@ -146,13 +151,16 @@ class AudioEngine: ObservableObject {
         // Reset player node state
         playerNode.reset()
         
-        // Use render callback for continuous audio generation
-        setupRenderCallback()
+        // Set playing flag BEFORE scheduling buffers
+        isPlaying = true
         
-        // Start playing
+        // Start playing BEFORE scheduling buffers
         playerNode.play()
         
-        isPlaying = true
+        // Use render callback for continuous audio generation
+        // This must happen after isPlaying is true and playerNode.play() is called
+        setupRenderCallback()
+        
         print("Playing audio - frames: \(currentFrames.count), single cycle: \(currentSingleCycle.count), frequency: \(frequency) Hz, volume: \(volume)")
     }
     
@@ -195,9 +203,12 @@ class AudioEngine: ObservableObject {
     private func scheduleNextBuffer() {
         guard let playerNode = playerNode,
               isPlaying else {
-            print("scheduleNextBuffer: Not playing or no player node")
+            print("scheduleNextBuffer: Not playing or no player node (isPlaying: \(isPlaying))")
             return
         }
+        
+        // Note: playerNode.isPlaying might not be immediately true after play() is called
+        // so we rely on the isPlaying flag instead
         
         let buffer = generateAudioBufferWithPhase()
         

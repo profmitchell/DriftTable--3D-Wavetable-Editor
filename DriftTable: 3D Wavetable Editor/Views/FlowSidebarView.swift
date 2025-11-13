@@ -60,7 +60,6 @@ struct FlowSidebarView: View {
                 }
             }
         }
-        .frame(minWidth: 200, idealWidth: 250)
         .modifier(FlowToolChangeModifier(
             flowViewModel: flowViewModel,
             projectViewModel: projectViewModel
