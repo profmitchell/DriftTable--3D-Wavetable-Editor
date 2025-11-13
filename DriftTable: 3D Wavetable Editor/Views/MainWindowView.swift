@@ -203,28 +203,36 @@ struct MainWindowView: View {
     // MARK: - Main Content
     @ViewBuilder
     private var mainContentView: some View {
-        let content: AnyView = {
+        Group {
             if selectedSidebarItem == .keyShapes {
-                return AnyView(keyShapesContentView)
+                keyShapesContentView
             } else if selectedSidebarItem == .morphSettings {
-                return AnyView(morphSettingsContentView)
+                morphSettingsContentView
             } else {
-                return AnyView(keyShapesContentView)
+                keyShapesContentView
             }
-        }()
-        
-        content
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                inspectorToggleToolbar
-            }
-            .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
-                updateAudioEngine(frames: newFrames)
-            }
-            .onAppear {
+        }
+        .navigationTitle(navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            inspectorToggleToolbar
+        }
+        .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
+            updateAudioEngine(frames: newFrames)
+        }
+        .onChange(of: projectViewModel.selectedKeyShapeId) { _, _ in
+            // Update audio when key shape selection changes
+            updateAudioEngine(frames: projectViewModel.project.generatedFrames)
+        }
+        .onChange(of: selectedSidebarItem) { _, newItem in
+            // When navigating back to key shapes, ensure audio is updated
+            if newItem == .keyShapes {
                 updateAudioEngine(frames: projectViewModel.project.generatedFrames)
             }
+        }
+        .onAppear {
+            updateAudioEngine(frames: projectViewModel.project.generatedFrames)
+        }
     }
     
     private var navigationTitle: String {
@@ -247,11 +255,27 @@ struct MainWindowView: View {
     }
     
     private func updateAudioEngine(frames: [[Float]]) {
-        audioEngine.updateWavetable(
-            frames: frames,
-            sampleRate: projectViewModel.project.sampleRate,
-            samplesPerFrame: projectViewModel.project.samplesPerFrame
-        )
+        if frames.isEmpty {
+            // If no frames, try to use current key shape for single cycle preview
+            if let currentShape = projectViewModel.currentKeyShape {
+                audioEngine.updateSingleCycle(
+                    currentShape.samples,
+                    sampleRate: projectViewModel.project.sampleRate
+                )
+            } else {
+                audioEngine.updateWavetable(
+                    frames: [],
+                    sampleRate: projectViewModel.project.sampleRate,
+                    samplesPerFrame: projectViewModel.project.samplesPerFrame
+                )
+            }
+        } else {
+            audioEngine.updateWavetable(
+                frames: frames,
+                sampleRate: projectViewModel.project.sampleRate,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame
+            )
+        }
     }
     
     private var keyShapesContentView: some View {
@@ -283,6 +307,13 @@ struct MainWindowView: View {
                                     if toolsViewModel.selectedTool == .smoothBrush,
                                        let id = projectViewModel.selectedKeyShapeId {
                                         projectViewModel.updateOriginalKeyShape(id: id, shape: shape)
+                                    }
+                                    // Update audio preview with new samples
+                                    if projectViewModel.project.generatedFrames.isEmpty {
+                                        audioEngine.updateSingleCycle(
+                                            newSamples,
+                                            sampleRate: projectViewModel.project.sampleRate
+                                        )
                                     }
                                 }
                             }
@@ -356,6 +387,53 @@ struct MainWindowView: View {
     private var inspectorView: some View {
         ScrollView {
             VStack(spacing: 20) {
+                // Key Shapes Section (A, B, C layers)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Key Shapes")
+                            .font(.headline)
+                        Spacer()
+                        Button(action: { projectViewModel.addKeyShape() }) {
+                            Image(systemName: "plus")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(.horizontal)
+                    
+                    ForEach(projectViewModel.project.keyShapes) { keyShape in
+                        HStack {
+                            Text(keyShape.id)
+                                .font(.title3)
+                                .foregroundColor(projectViewModel.selectedKeyShapeId == keyShape.id ? .accentColor : .primary)
+                            Spacer()
+                            
+                            HStack(spacing: 8) {
+                                Button(action: { projectViewModel.duplicateKeyShape(keyShape.id) }) {
+                                    Image(systemName: "doc.on.doc")
+                                }
+                                .buttonStyle(.bordered)
+                                
+                                Button(action: { projectViewModel.deleteKeyShape(keyShape.id) }) {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(projectViewModel.project.keyShapes.count <= 1)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(projectViewModel.selectedKeyShapeId == keyShape.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                        .cornerRadius(8)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            projectViewModel.selectKeyShape(keyShape.id)
+                        }
+                    }
+                }
+                .padding(.vertical)
+                
+                Divider()
+                
                 // Morph Settings Section
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Morph Settings")
@@ -563,27 +641,50 @@ struct MainWindowView: View {
         
         let modified = toolsViewModel.applyCurrentTool(to: originalShape)
         projectViewModel.updateCurrentKeyShape(modified)
+        
+        // Update audio preview with modified shape if no frames are generated
+        if projectViewModel.project.generatedFrames.isEmpty {
+            audioEngine.updateSingleCycle(
+                modified.samples,
+                sampleRate: projectViewModel.project.sampleRate
+            )
+        }
     }
     
     private func newProject() {
         projectViewModel.project = WavetableProject.defaultProject()
         projectViewModel.selectedKeyShapeId = projectViewModel.project.keyShapes.first?.id
-        audioEngine.updateWavetable(
-            frames: [],
-            sampleRate: projectViewModel.project.sampleRate,
-            samplesPerFrame: projectViewModel.project.samplesPerFrame
-        )
+        if let firstShape = projectViewModel.project.keyShapes.first {
+            audioEngine.updateSingleCycle(
+                firstShape.samples,
+                sampleRate: projectViewModel.project.sampleRate
+            )
+        } else {
+            audioEngine.updateWavetable(
+                frames: [],
+                sampleRate: projectViewModel.project.sampleRate,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame
+            )
+        }
     }
     
     private func loadProject(from url: URL) {
         do {
             let project = try ProjectPersistence.load(from: url)
             projectViewModel.loadProject(project)
-            audioEngine.updateWavetable(
-                frames: project.generatedFrames,
-                sampleRate: project.sampleRate,
-                samplesPerFrame: project.samplesPerFrame
-            )
+            if project.generatedFrames.isEmpty,
+               let firstShape = project.keyShapes.first {
+                audioEngine.updateSingleCycle(
+                    firstShape.samples,
+                    sampleRate: project.sampleRate
+                )
+            } else {
+                audioEngine.updateWavetable(
+                    frames: project.generatedFrames,
+                    sampleRate: project.sampleRate,
+                    samplesPerFrame: project.samplesPerFrame
+                )
+            }
         } catch {
             print("Failed to load project: \(error)")
         }

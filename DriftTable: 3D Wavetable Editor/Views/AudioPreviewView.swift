@@ -69,6 +69,7 @@ struct AudioPreviewView: View {
                         .frame(width: 30, height: 30)
                 }
                 .buttonStyle(.bordered)
+                .disabled(!audioEngine.hasFrames)
             }
             
             // Play/Stop controls
@@ -84,6 +85,7 @@ struct AudioPreviewView: View {
                         .frame(width: 40, height: 40)
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(!audioEngine.hasFrames)
                 
                 Toggle("Hold Note", isOn: $holdNote)
                     .onChange(of: holdNote) { _, newValue in
@@ -93,6 +95,7 @@ struct AudioPreviewView: View {
                             audioEngine.stop()
                         }
                     }
+                    .disabled(!audioEngine.hasFrames)
             }
             .onAppear {
                 midiManager.setNoteHandlers(

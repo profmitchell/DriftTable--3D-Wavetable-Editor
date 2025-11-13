@@ -20,7 +20,12 @@ class AudioEngine: ObservableObject {
     @Published var tone: Float = 0.5 // Lowpass filter cutoff
     @Published var currentMIDINote: Int?
     
+    var hasFrames: Bool {
+        !currentFrames.isEmpty || !currentSingleCycle.isEmpty
+    }
+    
     private var currentFrames: [[Float]] = []
+    private var currentSingleCycle: [Float] = [] // For single cycle waveform preview
     private var sampleRate: Double = 44100.0
     private var samplesPerFrame: Int = 2048
     
@@ -71,6 +76,7 @@ class AudioEngine: ObservableObject {
     
     func updateWavetable(frames: [[Float]], sampleRate: Double, samplesPerFrame: Int) {
         self.currentFrames = frames
+        self.currentSingleCycle = [] // Clear single cycle when wavetable is set
         self.sampleRate = sampleRate
         self.samplesPerFrame = samplesPerFrame
         
@@ -85,9 +91,37 @@ class AudioEngine: ObservableObject {
         }
     }
     
+    func updateSingleCycle(_ samples: [Float], sampleRate: Double) {
+        self.currentSingleCycle = samples
+        self.currentFrames = [] // Clear wavetable when single cycle is set
+        self.sampleRate = sampleRate
+        self.samplesPerFrame = samples.count
+        
+        // Update render format if sample rate changed
+        if let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1) {
+            renderFormat = format
+        }
+        
+        if isPlaying {
+            stop()
+            play()
+        }
+    }
+    
     func play() {
-        guard !currentFrames.isEmpty,
-              let playerNode = playerNode else { return }
+        guard (!currentFrames.isEmpty || !currentSingleCycle.isEmpty),
+              let playerNode = playerNode,
+              let engine = engine else { return }
+        
+        // Ensure engine is running
+        if !engine.isRunning {
+            do {
+                try engine.start()
+            } catch {
+                print("Failed to start audio engine: \(error)")
+                return
+            }
+        }
         
         stop()
         phase = 0.0
@@ -163,11 +197,11 @@ class AudioEngine: ObservableObject {
         
         let channelPointer = channelData[0]
         
-        guard !currentFrames.isEmpty else {
+        guard !currentFrames.isEmpty || !currentSingleCycle.isEmpty else {
             return buffer
         }
         
-        // Generate audio using wavetable oscillator
+        // Generate audio using wavetable oscillator or single cycle
         let sampleRateFloat = Float(sampleRate)
         let phaseIncrement = frequency / sampleRateFloat
         
@@ -177,28 +211,42 @@ class AudioEngine: ObservableObject {
                 continue
             }
             
-            // Select frame based on wavetable position
-            let frameIndex = wavetablePosition * Float(currentFrames.count - 1)
-            let frameIndex0 = Int(floor(frameIndex))
-            let frameIndex1 = min(frameIndex0 + 1, currentFrames.count - 1)
-            let frameT = frameIndex - Float(frameIndex0)
+            let finalValue: Float
             
-            // Get samples from current frame
-            let frame0 = currentFrames[frameIndex0]
-            let frame1 = currentFrames[frameIndex1]
-            
-            // Interpolate within frame based on phase
-            let sampleIndex = Int(phase * Float(frame0.count)) % frame0.count
-            let sampleIndex1 = (sampleIndex + 1) % frame0.count
-            
-            let sample0 = frame0[sampleIndex]
-            let sample1 = frame0[sampleIndex1]
-            let sampleT = (phase * Float(frame0.count)) - Float(sampleIndex)
-            
-            // Interpolate between frames
-            let value0 = sample0 + (sample1 - sample0) * sampleT
-            let value1 = frame1[sampleIndex] + (frame1[sampleIndex1] - frame1[sampleIndex]) * sampleT
-            let finalValue = value0 + (value1 - value0) * frameT
+            if !currentSingleCycle.isEmpty {
+                // Single cycle waveform playback
+                let sampleIndex = Int(phase * Float(currentSingleCycle.count)) % currentSingleCycle.count
+                let sampleIndex1 = (sampleIndex + 1) % currentSingleCycle.count
+                let sampleT = (phase * Float(currentSingleCycle.count)) - Float(sampleIndex)
+                
+                let sample0 = currentSingleCycle[sampleIndex]
+                let sample1 = currentSingleCycle[sampleIndex1]
+                finalValue = sample0 + (sample1 - sample0) * sampleT
+            } else {
+                // Wavetable playback
+                // Select frame based on wavetable position
+                let frameIndex = wavetablePosition * Float(currentFrames.count - 1)
+                let frameIndex0 = Int(floor(frameIndex))
+                let frameIndex1 = min(frameIndex0 + 1, currentFrames.count - 1)
+                let frameT = frameIndex - Float(frameIndex0)
+                
+                // Get samples from current frame
+                let frame0 = currentFrames[frameIndex0]
+                let frame1 = currentFrames[frameIndex1]
+                
+                // Interpolate within frame based on phase
+                let sampleIndex = Int(phase * Float(frame0.count)) % frame0.count
+                let sampleIndex1 = (sampleIndex + 1) % frame0.count
+                
+                let sample0 = frame0[sampleIndex]
+                let sample1 = frame0[sampleIndex1]
+                let sampleT = (phase * Float(frame0.count)) - Float(sampleIndex)
+                
+                // Interpolate between frames
+                let value0 = sample0 + (sample1 - sample0) * sampleT
+                let value1 = frame1[sampleIndex] + (frame1[sampleIndex1] - frame1[sampleIndex]) * sampleT
+                finalValue = value0 + (value1 - value0) * frameT
+            }
             
             channelPointer[i] = finalValue * volume
             
