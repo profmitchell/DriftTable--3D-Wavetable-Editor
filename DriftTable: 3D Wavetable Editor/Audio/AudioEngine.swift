@@ -34,6 +34,15 @@ class AudioEngine: ObservableObject {
     }
     
     private func setupAudioEngine() {
+        // Configure audio session for iOS
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default, options: [])
+            try audioSession.setActive(true)
+        } catch {
+            print("Failed to configure audio session: \(error)")
+        }
+        
         engine = AVAudioEngine()
         playerNode = AVAudioPlayerNode()
         mixerNode = AVAudioMixerNode()
@@ -64,6 +73,11 @@ class AudioEngine: ObservableObject {
         self.currentFrames = frames
         self.sampleRate = sampleRate
         self.samplesPerFrame = samplesPerFrame
+        
+        // Update render format if sample rate changed
+        if let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1) {
+            renderFormat = format
+        }
         
         if isPlaying {
             stop()
