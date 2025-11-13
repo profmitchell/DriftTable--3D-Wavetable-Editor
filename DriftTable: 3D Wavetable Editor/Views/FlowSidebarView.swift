@@ -12,20 +12,34 @@ struct FlowSidebarView: View {
     @ObservedObject var projectViewModel: ProjectViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Flow Tools")
-                .font(.headline)
-                .padding(.horizontal)
-                .padding(.top)
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                Text("Flow Tools")
+                    .font(.headline)
+                Spacer()
+                Button(action: {
+                    flowViewModel.applyToProject(projectViewModel)
+                }) {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(projectViewModel.project.generatedFrames.isEmpty)
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
+            
+            Divider()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
                     // Tool selection
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Tool")
-                            .font(.subheadline)
+                            .font(.caption)
                             .foregroundColor(.secondary)
-                        // Use menu picker instead of segmented for 3+ options
+                            .textCase(.uppercase)
                         Picker("", selection: $flowViewModel.settings.selectedTool) {
                             ForEach(FlowTool.allCases) { tool in
                                 HStack {
@@ -36,7 +50,6 @@ struct FlowSidebarView: View {
                             }
                         }
                         .pickerStyle(.menu)
-                        .frame(maxWidth: .infinity)
                     }
                     .padding(.horizontal)
                     
@@ -44,27 +57,8 @@ struct FlowSidebarView: View {
                     
                     // Tool-specific parameters
                     toolParametersView
-                    
-                    Divider()
-                    
-                    // Apply button (manual apply - real-time happens automatically)
-                    Button(action: {
-                        flowViewModel.applyToProject(projectViewModel)
-                    }) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                            Text("Apply Flow")
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal)
-                    .disabled(projectViewModel.project.generatedFrames.isEmpty)
-                    .help("Manually apply flow tool (auto-applied in real-time)")
                 }
             }
-            
-            Spacer()
         }
         .frame(minWidth: 200, idealWidth: 250)
         .modifier(FlowToolChangeModifier(
@@ -98,68 +92,88 @@ struct FlowSidebarView: View {
     }
     
     private var driftParameters: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Direction")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 10) {
             Picker("", selection: $flowViewModel.settings.driftDirection) {
                 Text("Left").tag(false)
                 Text("Right").tag(true)
             }
             .pickerStyle(.segmented)
             
-            Text("Amount")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: $flowViewModel.settings.driftAmount, in: 0.0...2.0)
-            Text(String(format: "%.2f", flowViewModel.settings.driftAmount))
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack(spacing: 8) {
+                Text("Amount")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: $flowViewModel.settings.driftAmount, in: 0.0...2.0)
+                Text(String(format: "%.2f", flowViewModel.settings.driftAmount))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
         }
         .padding(.horizontal)
     }
     
     private var taperParameters: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Start Intensity")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: $flowViewModel.settings.taperStartIntensity, in: 0.0...2.0)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Text("Start")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: $flowViewModel.settings.taperStartIntensity, in: 0.0...2.0)
+                Text(String(format: "%.2f", flowViewModel.settings.taperStartIntensity))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
             
-            Text("End Intensity")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: $flowViewModel.settings.taperEndIntensity, in: 0.0...2.0)
+            HStack(spacing: 8) {
+                Text("End")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: $flowViewModel.settings.taperEndIntensity, in: 0.0...2.0)
+                Text(String(format: "%.2f", flowViewModel.settings.taperEndIntensity))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
         }
         .padding(.horizontal)
     }
     
     private var windParameters: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Direction")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 10) {
             Picker("", selection: $flowViewModel.settings.windDirection) {
-                Text("Right to Left").tag(false)
-                Text("Left to Right").tag(true)
+                Text("R→L").tag(false)
+                Text("L→R").tag(true)
             }
             .pickerStyle(.segmented)
             
-            Text("Strength")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: $flowViewModel.settings.windStrength, in: 0.0...2.0)
-            Text(String(format: "%.2f", flowViewModel.settings.windStrength))
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack(spacing: 8) {
+                Text("Strength")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: $flowViewModel.settings.windStrength, in: 0.0...2.0)
+                Text(String(format: "%.2f", flowViewModel.settings.windStrength))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
             
-            Text("Falloff")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Slider(value: $flowViewModel.settings.windFalloff, in: 0.0...1.0)
-            Text(String(format: "%.2f", flowViewModel.settings.windFalloff))
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack(spacing: 8) {
+                Text("Falloff")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 50, alignment: .leading)
+                Slider(value: $flowViewModel.settings.windFalloff, in: 0.0...1.0)
+                Text(String(format: "%.2f", flowViewModel.settings.windFalloff))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
         }
         .padding(.horizontal)
     }

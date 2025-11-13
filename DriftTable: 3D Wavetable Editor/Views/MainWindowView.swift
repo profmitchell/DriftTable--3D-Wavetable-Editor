@@ -328,13 +328,23 @@ struct MainWindowView: View {
                     VStack(spacing: 0) {
                         Divider()
                         
+                        // Tool tab selector
+                        Picker("", selection: $selectedToolTab) {
+                            Text("Shape").tag(0)
+                            Text("Flow").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             if selectedToolTab == 0 {
                                 ToolSidebarView(
                                     toolsViewModel: toolsViewModel,
                                     projectViewModel: projectViewModel
                                 )
-                                .frame(width: 800) // Fixed width for horizontal scroll
+                                .frame(width: 800)
                                 .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
                                     toolApplicationTask?.cancel()
                                     if newTool != .smoothBrush,
@@ -346,26 +356,15 @@ struct MainWindowView: View {
                                 }
                             } else {
                                 FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
-                                    .frame(width: 800) // Fixed width for horizontal scroll
+                                    .frame(width: 800)
                             }
                         }
-                        .frame(height: 200)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        
-                        // Tool tab selector
-                        Picker("", selection: $selectedToolTab) {
-                            Text("Shape").tag(0)
-                            Text("Flow").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
+                        .frame(height: 180)
                         .background(Color(UIColor.secondarySystemBackground))
                     }
                     
                     // Audio Preview
                     AudioPreviewView(audioEngine: audioEngine)
-                        .frame(height: 100)
                 }
             } else {
                 // Landscape or iPad layout (original)
@@ -634,50 +633,56 @@ struct MainWindowView: View {
     // MARK: - Compact Toolbar
     private var compactToolbar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Button(action: { newProject() }) {
-                    Label("New", systemImage: "doc.badge.plus")
-                        .labelStyle(.iconOnly)
+                    Image(systemName: "doc.badge.plus")
+                        .font(.caption)
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.bordered)
                 
                 Button(action: { showOpenProjectPicker = true }) {
-                    Label("Open", systemImage: "folder")
-                        .labelStyle(.iconOnly)
+                    Image(systemName: "folder")
+                        .font(.caption)
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.bordered)
                 
                 Button(action: { showSaveProjectPicker = true }) {
-                    Label("Save", systemImage: "square.and.arrow.down")
-                        .labelStyle(.iconOnly)
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.caption)
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.bordered)
                 
                 Divider()
-                    .frame(height: 20)
+                    .frame(height: 24)
                 
                 Button(action: { showImportAudioPicker = true }) {
                     if isImporting {
                         ProgressView()
-                            .scaleEffect(0.8)
+                            .scaleEffect(0.7)
+                            .frame(width: 32, height: 32)
                     } else {
-                        Label("Import", systemImage: "square.and.arrow.down")
-                            .labelStyle(.iconOnly)
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.caption)
+                            .frame(width: 32, height: 32)
                     }
                 }
                 .buttonStyle(.bordered)
                 .disabled(isImporting)
                 
                 Button(action: { showExportWavetablePicker = true }) {
-                    Label("Export", systemImage: "square.and.arrow.up")
-                        .labelStyle(.iconOnly)
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.caption)
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.bordered)
                 .disabled(projectViewModel.project.generatedFrames.isEmpty)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 12)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
         .background(Color(UIColor.secondarySystemBackground))
     }
     
@@ -877,3 +882,4 @@ struct WavetableDocument: FileDocument {
 #Preview {
     MainWindowView()
 }
+

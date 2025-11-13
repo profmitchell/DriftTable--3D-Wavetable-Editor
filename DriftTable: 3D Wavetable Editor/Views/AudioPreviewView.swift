@@ -15,14 +15,101 @@ struct AudioPreviewView: View {
     @State private var isDronePlaying = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Audio Preview")
-                .font(.headline)
+        VStack(spacing: 12) {
+            // Main controls row
+            HStack(spacing: 12) {
+                // Play button
+                Button(action: {
+                    if audioEngine.isPlaying {
+                        audioEngine.stop()
+                    } else {
+                        audioEngine.play()
+                    }
+                }) {
+                    Image(systemName: audioEngine.isPlaying ? "stop.fill" : "play.fill")
+                        .font(.title3)
+                        .frame(width: 44, height: 44)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!audioEngine.hasFrames)
+                
+                // Drone note
+                HStack(spacing: 8) {
+                    Picker("", selection: $droneNote) {
+                        ForEach(36..<84) { note in
+                            Text(midiNoteName(note)).tag(note)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 70)
+                    
+                    Button(action: {
+                        if isDronePlaying {
+                            audioEngine.noteOff(note: droneNote)
+                            isDronePlaying = false
+                        } else {
+                            audioEngine.noteOn(note: droneNote, velocity: 0.7)
+                            isDronePlaying = true
+                        }
+                    }) {
+                        Image(systemName: isDronePlaying ? "stop.fill" : "play.fill")
+                            .font(.caption)
+                            .frame(width: 28, height: 28)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!audioEngine.hasFrames)
+                }
+                
+                Spacer()
+                
+                // MIDI indicator
+                if let note = audioEngine.currentMIDINote {
+                    Text(midiNoteName(note))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.accentColor.opacity(0.2))
+                        .cornerRadius(6)
+                }
+            }
             
-            // MIDI Device Selector
-            VStack(alignment: .leading, spacing: 4) {
-                Text("MIDI Input")
-                    .font(.subheadline)
+            // Sliders - compact layout
+            VStack(spacing: 8) {
+                // Position
+                HStack(spacing: 8) {
+                    Text("Pos")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(width: 32, alignment: .leading)
+                    Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
+                    Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(width: 35, alignment: .trailing)
+                }
+                
+                // Volume
+                HStack(spacing: 8) {
+                    Text("Vol")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(width: 32, alignment: .leading)
+                    Slider(value: Binding(
+                        get: { Double(audioEngine.volume) },
+                        set: { audioEngine.setVolume(Float($0)) }
+                    ), in: 0.0...1.0)
+                    Text(String(format: "%.0f%%", audioEngine.volume * 100))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(width: 35, alignment: .trailing)
+                }
+            }
+            
+            // MIDI input (compact)
+            HStack(spacing: 8) {
+                Text("MIDI")
+                    .font(.caption)
                     .foregroundColor(.secondary)
                 Picker("", selection: Binding(
                     get: { midiManager.selectedDevice },
@@ -34,68 +121,7 @@ struct AudioPreviewView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                
-                if let note = audioEngine.currentMIDINote {
-                    Text("Note: \(midiNoteName(note))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            
-            // Drone Note Control
-            HStack {
-                Text("Drone Note:")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Picker("", selection: $droneNote) {
-                    ForEach(36..<84) { note in // C2 to C6
-                        Text(midiNoteName(note)).tag(note)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 80)
-                
-                Button(action: {
-                    if isDronePlaying {
-                        audioEngine.noteOff(note: droneNote)
-                        isDronePlaying = false
-                    } else {
-                        audioEngine.noteOn(note: droneNote, velocity: 0.7)
-                        isDronePlaying = true
-                    }
-                }) {
-                    Image(systemName: isDronePlaying ? "stop.fill" : "play.fill")
-                        .frame(width: 30, height: 30)
-                }
-                .buttonStyle(.bordered)
-                .disabled(!audioEngine.hasFrames)
-            }
-            
-            // Play/Stop controls
-            HStack {
-                Button(action: {
-                    if audioEngine.isPlaying {
-                        audioEngine.stop()
-                    } else {
-                        audioEngine.play()
-                    }
-                }) {
-                    Image(systemName: audioEngine.isPlaying ? "stop.fill" : "play.fill")
-                        .frame(width: 40, height: 40)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(!audioEngine.hasFrames)
-                
-                Toggle("Hold Note", isOn: $holdNote)
-                    .onChange(of: holdNote) { _, newValue in
-                        if newValue {
-                            audioEngine.play()
-                        } else {
-                            audioEngine.stop()
-                        }
-                    }
-                    .disabled(!audioEngine.hasFrames)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .onAppear {
                 midiManager.setNoteHandlers(
@@ -107,42 +133,10 @@ struct AudioPreviewView: View {
                     }
                 )
             }
-            
-            // Wavetable Position
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Position")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
-                Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            // Volume
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Volume")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Slider(value: Binding(
-                    get: { Double(audioEngine.volume) },
-                    set: { audioEngine.setVolume(Float($0)) }
-                ), in: 0.0...1.0)
-                Text(String(format: "%.0f%%", audioEngine.volume * 100))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            // Tone (simplified)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Tone")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Slider(value: $audioEngine.tone, in: 0.0...1.0)
-            }
         }
-        .padding()
-        .frame(height: 250)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color(UIColor.secondarySystemBackground))
     }
     
     private func midiNoteName(_ note: Int) -> String {
