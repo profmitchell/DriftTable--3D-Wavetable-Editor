@@ -42,8 +42,8 @@ class AudioEngine: ObservableObject {
         // Configure audio session for iOS
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [])
-            try audioSession.setActive(true)
+            try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try audioSession.setActive(true, options: [])
         } catch {
             print("Failed to configure audio session: \(error)")
         }
@@ -67,11 +67,7 @@ class AudioEngine: ObservableObject {
         
         mixerNode.volume = volume
         
-        do {
-            try engine.start()
-        } catch {
-            print("Failed to start audio engine: \(error)")
-        }
+        // Don't start engine here - start it when play() is called
     }
     
     func updateWavetable(frames: [[Float]], sampleRate: Double, samplesPerFrame: Int) {
@@ -92,10 +88,17 @@ class AudioEngine: ObservableObject {
     }
     
     func updateSingleCycle(_ samples: [Float], sampleRate: Double) {
+        guard !samples.isEmpty else {
+            print("updateSingleCycle: samples array is empty")
+            return
+        }
+        
         self.currentSingleCycle = samples
         self.currentFrames = [] // Clear wavetable when single cycle is set
         self.sampleRate = sampleRate
         self.samplesPerFrame = samples.count
+        
+        print("updateSingleCycle: Set \(samples.count) samples at \(sampleRate) Hz")
         
         // Update render format if sample rate changed
         if let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1) {
@@ -111,12 +114,26 @@ class AudioEngine: ObservableObject {
     func play() {
         guard (!currentFrames.isEmpty || !currentSingleCycle.isEmpty),
               let playerNode = playerNode,
-              let engine = engine else { return }
+              let engine = engine else {
+            print("Cannot play: no frames/single cycle or engine not ready")
+            return
+        }
+        
+        // Ensure audio session is active
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            if !audioSession.isOtherAudioPlaying {
+                try audioSession.setActive(true, options: [])
+            }
+        } catch {
+            print("Failed to activate audio session: \(error)")
+        }
         
         // Ensure engine is running
         if !engine.isRunning {
             do {
                 try engine.start()
+                print("Audio engine started successfully")
             } catch {
                 print("Failed to start audio engine: \(error)")
                 return
@@ -126,11 +143,17 @@ class AudioEngine: ObservableObject {
         stop()
         phase = 0.0
         
+        // Reset player node state
+        playerNode.reset()
+        
         // Use render callback for continuous audio generation
         setupRenderCallback()
+        
+        // Start playing
         playerNode.play()
         
         isPlaying = true
+        print("Playing audio - frames: \(currentFrames.count), single cycle: \(currentSingleCycle.count), frequency: \(frequency) Hz, volume: \(volume)")
     }
     
     func stop() {
@@ -163,41 +186,59 @@ class AudioEngine: ObservableObject {
     }
     
     private func setupRenderCallback() {
-        // Schedule buffers continuously
-        scheduleNextBuffer()
+        // Schedule multiple buffers ahead to prevent gaps
+        for _ in 0..<3 {
+            scheduleNextBuffer()
+        }
     }
     
     private func scheduleNextBuffer() {
         guard let playerNode = playerNode,
-              isPlaying else { return }
+              isPlaying else {
+            print("scheduleNextBuffer: Not playing or no player node")
+            return
+        }
         
         let buffer = generateAudioBufferWithPhase()
+        
+        // Schedule buffer and continue scheduling when it completes
         playerNode.scheduleBuffer(buffer, at: nil, options: []) { [weak self] in
-            if self?.isPlaying == true {
-                self?.scheduleNextBuffer()
+            // Schedule next buffer on main thread
+            DispatchQueue.main.async {
+                if self?.isPlaying == true {
+                    self?.scheduleNextBuffer()
+                }
             }
         }
     }
     
     private func generateAudioBufferWithPhase() -> AVAudioPCMBuffer {
         guard let format = renderFormat else {
+            print("ERROR: Audio format not initialized")
             fatalError("Audio format not initialized")
         }
         
         let frameCount = AVAudioFrameCount(512) // Smaller buffers for lower latency
         guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else {
+            print("ERROR: Failed to create audio buffer")
             fatalError("Failed to create audio buffer")
         }
         
         buffer.frameLength = frameCount
         
         guard let channelData = buffer.floatChannelData else {
+            print("ERROR: No channel data")
             return buffer
         }
         
         let channelPointer = channelData[0]
         
         guard !currentFrames.isEmpty || !currentSingleCycle.isEmpty else {
+            print("WARNING: No frames or single cycle - filling with silence")
+            // Fill with silence
+            for i in 0..<Int(frameCount) {
+                channelPointer[i] = 0.0
+            }
             return buffer
         }
         
@@ -205,11 +246,12 @@ class AudioEngine: ObservableObject {
         let sampleRateFloat = Float(sampleRate)
         let phaseIncrement = frequency / sampleRateFloat
         
+        var maxSample: Float = 0.0
+        var minSample: Float = 0.0
+        
         for i in 0..<Int(frameCount) {
-            if !isNoteHeld && !isPlaying {
-                channelPointer[i] = 0.0
-                continue
-            }
+            // Always generate audio when playing, regardless of note held status
+            // (note held only affects whether we continue after release)
             
             let finalValue: Float
             
@@ -248,13 +290,22 @@ class AudioEngine: ObservableObject {
                 finalValue = value0 + (value1 - value0) * frameT
             }
             
-            channelPointer[i] = finalValue * volume
+            let outputValue = finalValue * volume
+            channelPointer[i] = outputValue
+            
+            maxSample = max(maxSample, abs(outputValue))
+            minSample = min(minSample, abs(outputValue))
             
             // Advance phase
             phase += phaseIncrement
             if phase >= 1.0 {
                 phase -= 1.0
             }
+        }
+        
+        // Debug: log first buffer to verify audio is being generated
+        if phase < phaseIncrement * 2 { // Only log first couple buffers
+            print("Buffer generated: max=\(maxSample), min=\(minSample), volume=\(volume), frequency=\(frequency)")
         }
         
         return buffer
