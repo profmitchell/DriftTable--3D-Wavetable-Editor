@@ -47,13 +47,14 @@ struct MainWindowView: View {
             },
             content: {
                 mainContentView
+                    .inspector(isPresented: $showInspector) {
+                        inspectorView
+                            .inspectorColumnWidth(min: 280, ideal: 320, max: 400)
+                    }
             },
             detail: {
-                if showInspector {
-                    inspectorView
-                } else {
-                    EmptyView()
-                }
+                // Empty detail - inspector is handled by modifier
+                EmptyView()
             }
         )
         .navigationSplitViewStyle(.balanced)
@@ -234,7 +235,8 @@ struct MainWindowView: View {
     private var inspectorToggleToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: toggleInspector) {
-                Image(systemName: showInspector ? "sidebar.right" : "sidebar.right")
+                Label("Inspector", systemImage: "sidebar.right")
+                    .labelStyle(.iconOnly)
                     .symbolVariant(showInspector ? .fill : .none)
             }
         }
@@ -259,43 +261,71 @@ struct MainWindowView: View {
             
             // Main editor/preview area
             GeometryReader { geometry in
-                if !projectViewModel.project.generatedFrames.isEmpty {
-                    // Show wavetable preview when frames are generated
-                    WavetablePreviewView(
-                        frames: projectViewModel.project.generatedFrames,
-                        samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                        position: $audioEngine.wavetablePosition
-                    )
-                } else if let currentShape = projectViewModel.currentKeyShape {
-                    // Show single waveform editor
-                    WaveEditorView(
-                        samples: currentShape.samples,
-                        samplesPerFrame: projectViewModel.project.samplesPerFrame,
-                        selectedTool: toolsViewModel.selectedTool,
-                        toolsViewModel: toolsViewModel,
-                        onSamplesChanged: { newSamples in
-                            if var shape = projectViewModel.currentKeyShape {
-                                shape.samples = newSamples
-                                projectViewModel.updateCurrentKeyShape(shape)
-                                if toolsViewModel.selectedTool == .smoothBrush,
-                                   let id = projectViewModel.selectedKeyShapeId {
-                                    projectViewModel.updateOriginalKeyShape(id: id, shape: shape)
+                ZStack {
+                    if !projectViewModel.project.generatedFrames.isEmpty {
+                        // Show wavetable preview when frames are generated
+                        WavetablePreviewView(
+                            frames: projectViewModel.project.generatedFrames,
+                            samplesPerFrame: projectViewModel.project.samplesPerFrame,
+                            position: $audioEngine.wavetablePosition
+                        )
+                    } else if let currentShape = projectViewModel.currentKeyShape {
+                        // Show single waveform editor
+                        WaveEditorView(
+                            samples: currentShape.samples,
+                            samplesPerFrame: projectViewModel.project.samplesPerFrame,
+                            selectedTool: toolsViewModel.selectedTool,
+                            toolsViewModel: toolsViewModel,
+                            onSamplesChanged: { newSamples in
+                                if var shape = projectViewModel.currentKeyShape {
+                                    shape.samples = newSamples
+                                    projectViewModel.updateCurrentKeyShape(shape)
+                                    if toolsViewModel.selectedTool == .smoothBrush,
+                                       let id = projectViewModel.selectedKeyShapeId {
+                                        projectViewModel.updateOriginalKeyShape(id: id, shape: shape)
+                                    }
                                 }
                             }
+                        )
+                        .onChange(of: toolsViewModel.liftDropAmount) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.pinchPosition) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.pinchStrength) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.arcStartPosition) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.arcEndPosition) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.arcCurvature) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.tiltAmount) { _, _ in debouncedApplyTool() }
+                        .onChange(of: toolsViewModel.symmetryAmount) { _, _ in debouncedApplyTool() }
+                    } else {
+                        emptyStateView
+                    }
+                    
+                    // Floating inspector button overlay for portrait mode (iPhone)
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                Button(action: toggleInspector) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "sidebar.right")
+                                            .symbolVariant(showInspector ? .fill : .none)
+                                        Text("Inspector")
+                                            .font(.subheadline)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(showInspector ? Color.accentColor : Color(UIColor.secondarySystemBackground))
+                                    .foregroundColor(showInspector ? .white : .primary)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 4)
+                                }
+                                .padding(.trailing, 16)
+                                .padding(.top, 16)
+                            }
+                            Spacer()
                         }
-                    )
-                    .onChange(of: toolsViewModel.liftDropAmount) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.pinchPosition) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.pinchStrength) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.arcStartPosition) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.arcEndPosition) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.arcCurvature) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.tiltAmount) { _, _ in debouncedApplyTool() }
-                    .onChange(of: toolsViewModel.symmetryAmount) { _, _ in debouncedApplyTool() }
-                } else {
-                    emptyStateView
+                    }
                 }
             }
             
@@ -423,35 +453,113 @@ struct MainWindowView: View {
     
     // MARK: - Inspector (Right Sidebar)
     private var inspectorView: some View {
-        VStack(spacing: 0) {
-            Picker("", selection: $selectedToolTab) {
-                Text("Shape").tag(0)
-                Text("Flow").tag(1)
-            }
-            .pickerStyle(.segmented)
-            .padding()
-            
-            if selectedToolTab == 0 {
-                ToolSidebarView(
-                    toolsViewModel: toolsViewModel,
-                    projectViewModel: projectViewModel
-                )
-                .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
-                    toolApplicationTask?.cancel()
-                    if newTool != .smoothBrush,
-                       let currentShapeId = projectViewModel.selectedKeyShapeId {
-                        if let current = projectViewModel.currentKeyShape {
-                            projectViewModel.updateOriginalKeyShape(id: currentShapeId, shape: current)
+        ScrollView {
+            VStack(spacing: 20) {
+                // Morph Settings Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Morph Settings")
+                        .font(.headline)
+                        .padding(.horizontal)
+                    
+                    // Frame Count
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Frame Count")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                        Picker("", selection: Binding(
+                            get: { projectViewModel.project.morphSettings.frameCount },
+                            set: { projectViewModel.project.morphSettings.frameCount = $0 }
+                        )) {
+                            ForEach(MorphSettings.frameCountOptions, id: \.self) { count in
+                                Text("\(count)").tag(count)
+                            }
                         }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Morph Style
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Morph Style")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                        Picker("", selection: Binding(
+                            get: { projectViewModel.project.morphSettings.morphStyle },
+                            set: { projectViewModel.project.morphSettings.morphStyle = $0 }
+                        )) {
+                            ForEach(MorphStyle.allCases, id: \.self) { style in
+                                Text(style.rawValue).tag(style)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Generate Button
+                    Button(action: {
+                        projectViewModel.generateFrames()
+                    }) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("Generate Frames")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal)
+                    .disabled(projectViewModel.project.keyShapes.count < 2)
+                    
+                    // Normalize Button
+                    Button(action: {
+                        projectViewModel.normalizeFrames()
+                    }) {
+                        HStack {
+                            Image(systemName: "waveform")
+                            Text("Normalize")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.horizontal)
+                    .disabled(projectViewModel.project.generatedFrames.isEmpty)
+                }
+                .padding(.vertical)
+                
+                Divider()
+                
+                // Tools Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Picker("", selection: $selectedToolTab) {
+                        Text("Shape").tag(0)
+                        Text("Flow").tag(1)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    
+                    if selectedToolTab == 0 {
+                        ToolSidebarView(
+                            toolsViewModel: toolsViewModel,
+                            projectViewModel: projectViewModel
+                        )
+                        .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
+                            toolApplicationTask?.cancel()
+                            if newTool != .smoothBrush,
+                               let currentShapeId = projectViewModel.selectedKeyShapeId {
+                                if let current = projectViewModel.currentKeyShape {
+                                    projectViewModel.updateOriginalKeyShape(id: currentShapeId, shape: current)
+                                }
+                            }
+                        }
+                    } else {
+                        FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
                     }
                 }
-            } else {
-                FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
             }
         }
         .navigationTitle("Inspector")
         .navigationBarTitleDisplayMode(.inline)
-        .frame(minWidth: 280, idealWidth: 320, maxWidth: 400)
     }
     
     // MARK: - Compact Toolbar
