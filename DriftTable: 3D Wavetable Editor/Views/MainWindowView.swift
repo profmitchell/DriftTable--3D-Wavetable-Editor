@@ -197,6 +197,41 @@ struct MainWindowView: View {
     
     // MARK: - Main Content
     private var mainContentView: some View {
+        Group {
+            if selectedSidebarItem == .keyShapes {
+                keyShapesContentView
+            } else if selectedSidebarItem == .morphSettings {
+                morphSettingsContentView
+            }
+        }
+        .navigationTitle(selectedSidebarItem == .keyShapes ? "Key Shapes" : "Morph Settings")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { 
+                    inspectorVisibility = inspectorVisibility == .visible ? .hidden : .visible 
+                }) {
+                    Image(systemName: inspectorVisibility == .visible ? "sidebar.right" : "sidebar.right")
+                }
+            }
+        }
+        .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
+            audioEngine.updateWavetable(
+                frames: newFrames,
+                sampleRate: projectViewModel.project.sampleRate,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame
+            )
+        }
+        .onAppear {
+            audioEngine.updateWavetable(
+                frames: projectViewModel.project.generatedFrames,
+                sampleRate: projectViewModel.project.sampleRate,
+                samplesPerFrame: projectViewModel.project.samplesPerFrame
+            )
+        }
+    }
+    
+    private var keyShapesContentView: some View {
         VStack(spacing: 0) {
             // Compact toolbar for mobile
             compactToolbar
@@ -247,31 +282,121 @@ struct MainWindowView: View {
             AudioPreviewView(audioEngine: audioEngine)
                 .frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 120 : 150)
         }
-        .navigationTitle(selectedSidebarItem == .keyShapes ? "Key Shapes" : "Morph Settings")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { inspectorVisibility = inspectorVisibility == .visible ? .hidden : .visible }) {
-                    Image(systemName: inspectorVisibility == .visible ? "sidebar.right" : "sidebar.right")
+    }
+    
+    private var morphSettingsContentView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Key Shapes List
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Key Shapes")
+                            .font(.headline)
+                        Spacer()
+                        Button(action: { projectViewModel.addKeyShape() }) {
+                            Image(systemName: "plus")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    
+                    ForEach(projectViewModel.project.keyShapes) { keyShape in
+                        HStack {
+                            Text(keyShape.id)
+                                .font(.title2)
+                                .foregroundColor(projectViewModel.selectedKeyShapeId == keyShape.id ? .accentColor : .primary)
+                            Spacer()
+                            
+                            HStack(spacing: 8) {
+                                Button(action: { projectViewModel.duplicateKeyShape(keyShape.id) }) {
+                                    Image(systemName: "doc.on.doc")
+                                }
+                                .buttonStyle(.bordered)
+                                
+                                Button(action: { projectViewModel.deleteKeyShape(keyShape.id) }) {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(projectViewModel.project.keyShapes.count <= 1)
+                            }
+                        }
+                        .padding()
+                        .background(projectViewModel.selectedKeyShapeId == keyShape.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                        .cornerRadius(8)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            projectViewModel.selectKeyShape(keyShape.id)
+                        }
+                    }
                 }
+                .padding()
+                
+                Divider()
+                
+                // Morph Settings
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Morph Settings")
+                        .font(.headline)
+                    
+                    // Frame Count
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Frame Count")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Picker("", selection: Binding(
+                            get: { projectViewModel.project.morphSettings.frameCount },
+                            set: { projectViewModel.project.morphSettings.frameCount = $0 }
+                        )) {
+                            ForEach(MorphSettings.frameCountOptions, id: \.self) { count in
+                                Text("\(count)").tag(count)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    
+                    // Morph Style
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Morph Style")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Picker("", selection: Binding(
+                            get: { projectViewModel.project.morphSettings.morphStyle },
+                            set: { projectViewModel.project.morphSettings.morphStyle = $0 }
+                        )) {
+                            ForEach(MorphStyle.allCases, id: \.self) { style in
+                                Text(style.rawValue).tag(style)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    
+                    // Generate Button
+                    Button(action: {
+                        projectViewModel.generateFrames()
+                    }) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("Generate Frames")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(projectViewModel.project.keyShapes.count < 2)
+                    
+                    // Normalize Button
+                    Button(action: {
+                        projectViewModel.normalizeFrames()
+                    }) {
+                        HStack {
+                            Image(systemName: "waveform")
+                            Text("Normalize")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(projectViewModel.project.generatedFrames.isEmpty)
+                }
+                .padding()
             }
-        }
-        .onChange(of: selectedSidebarItem) { oldValue, newValue in
-            // Handle sidebar selection changes
-        }
-        .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
-            audioEngine.updateWavetable(
-                frames: newFrames,
-                sampleRate: projectViewModel.project.sampleRate,
-                samplesPerFrame: projectViewModel.project.samplesPerFrame
-            )
-        }
-        .onAppear {
-            audioEngine.updateWavetable(
-                frames: projectViewModel.project.generatedFrames,
-                sampleRate: projectViewModel.project.sampleRate,
-                samplesPerFrame: projectViewModel.project.samplesPerFrame
-            )
         }
     }
     
