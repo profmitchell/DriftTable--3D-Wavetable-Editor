@@ -102,6 +102,22 @@ struct MainWindowView: View {
         }
     }
     
+    private var warpToolsPanel: some View {
+        ScrollView {
+            WarpPanelView(projectViewModel: projectViewModel)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+        }
+    }
+    
+    private var harmonicsToolsPanel: some View {
+        ScrollView {
+            HarmonicsPanelView(projectViewModel: projectViewModel)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+        }
+    }
+    
     var body: some View {
         let isPhone = UIDevice.current.userInterfaceIdiom == .phone
         
@@ -507,14 +523,26 @@ struct MainWindowView: View {
                 Text("Shape").tag(0)
                 Text("Flow").tag(1)
                 Text("Formula").tag(2)
+                Text("Warp").tag(3)
+                Text("Harmonics").tag(4)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color(UIColor.secondarySystemBackground))
             
+            let panelHeight: CGFloat = {
+                switch selectedToolTab {
+                case 3:
+                    return 220
+                case 4:
+                    return 260
+                default:
+                    return 180
+                }
+            }()
             toolsContent
-                .frame(height: 180)
+                .frame(height: panelHeight)
                 .background(Color(UIColor.secondarySystemBackground))
         }
     }
@@ -538,8 +566,12 @@ struct MainWindowView: View {
             }
         case 1:
             FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
-        default:
+        case 2:
             formulaToolsPanel
+        case 3:
+            warpToolsPanel
+        default:
+            harmonicsToolsPanel
         }
     }
     

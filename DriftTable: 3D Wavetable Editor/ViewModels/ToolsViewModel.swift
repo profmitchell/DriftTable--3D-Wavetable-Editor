@@ -45,7 +45,9 @@ class ToolsViewModel: ObservableObject {
     // Apply Vertical Stretch/Squeeze
     func applyVerticalStretch(to shape: KeyShape, amount: Float) -> KeyShape {
         var modified = shape
-        modified.samples = shape.samples.map { $0 * amount }
+        let scaled = shape.samples.map { $0 * amount }
+        let dcFree = WaveformUtilities.removeDC(from: scaled)
+        modified.samples = WaveformUtilities.lockEndpoints(dcFree)
         return modified
     }
     

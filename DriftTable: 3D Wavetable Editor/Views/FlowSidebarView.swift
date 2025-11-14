@@ -47,11 +47,7 @@ struct FlowSidebarView: View {
             toolParametersView
                 .padding(.bottom, 20) // Extra padding for scrolling
         }
-        .modifier(
-            livePreviewEnabled
-                ? AnyViewModifier(FlowToolChangeModifier(flowViewModel: flowViewModel, projectViewModel: projectViewModel))
-                : AnyViewModifier(IdentityModifier())
-        )
+        .modifier(ConditionalModifier(isEnabled: livePreviewEnabled, modifier: FlowToolChangeModifier(flowViewModel: flowViewModel, projectViewModel: projectViewModel)))
     }
     
     @ViewBuilder
@@ -322,16 +318,17 @@ private struct IdentityModifier: ViewModifier {
     }
 }
 
-private struct AnyViewModifier: ViewModifier {
-    let apply: (Content) -> AnyView
-    
-    init<M: ViewModifier>(_ modifier: M) {
-        self.apply = { content in
-            AnyView(modifier.body(content: content as! _ViewModifier_Content<M>))
-        }
-    }
+
+
+private struct ConditionalModifier<M: ViewModifier>: ViewModifier {
+    let isEnabled: Bool
+    let modifier: M
     
     func body(content: Content) -> some View {
-        apply(content)
+        if isEnabled {
+            content.modifier(modifier)
+        } else {
+            content
+        }
     }
 }

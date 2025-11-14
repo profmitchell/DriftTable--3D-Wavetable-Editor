@@ -10,6 +10,7 @@ import SwiftUI
 struct ToolSidebarView: View {
     @ObservedObject var toolsViewModel: ToolsViewModel
     @ObservedObject var projectViewModel: ProjectViewModel
+    @State private var livePreviewEnabled = false
     
     init(toolsViewModel: ToolsViewModel, projectViewModel: ProjectViewModel) {
         self.toolsViewModel = toolsViewModel
@@ -24,12 +25,23 @@ struct ToolSidebarView: View {
         !projectViewModel.project.generatedFrames.isEmpty
     }
     
+    private func applyLivePreviewIfNeeded() {
+        if hasGeneratedFrames && livePreviewEnabled {
+            toolsViewModel.applyGlobally?()
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Tool parameters only - tool selection is handled by CompactToolsView
+            Toggle(isOn: $livePreviewEnabled) {
+                Label("Live Preview", systemImage: "bolt.circle")
+                    .font(.subheadline)
+            }
+            .toggleStyle(.switch)
+            .tint(.accentColor)
+            
             toolParametersView
             
-            // Global apply button (only show when frames are generated)
             if hasGeneratedFrames {
                 Divider()
                     .padding(.vertical, 4)
@@ -51,59 +63,37 @@ struct ToolSidebarView: View {
         .padding(.bottom, 20) // Extra padding for scrolling
             // Real-time global application when parameters change
             .onChange(of: toolsViewModel.selectedTool) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.liftDropAmount) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.verticalStretchAmount) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.horizontalStretchAmount) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.pinchPosition) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.pinchStrength) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.tiltAmount) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.symmetryAmount) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.arcStartPosition) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.arcEndPosition) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
             .onChange(of: toolsViewModel.arcCurvature) { _, _ in
-                if hasGeneratedFrames {
-                    toolsViewModel.applyGlobally?()
-                }
+                applyLivePreviewIfNeeded()
             }
     }
     

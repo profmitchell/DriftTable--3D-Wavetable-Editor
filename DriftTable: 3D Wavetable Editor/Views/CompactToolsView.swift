@@ -19,6 +19,8 @@ struct CompactToolsView: View {
         case flow = "Flow"
         case morph = "Morph"
         case formula = "Formula"
+        case warp = "Warp"
+        case harmonics = "Harmonics"
         
         var icon: String {
             switch self {
@@ -26,6 +28,8 @@ struct CompactToolsView: View {
             case .flow: return "wind"
             case .morph: return "sparkles"
             case .formula: return "function"
+            case .warp: return "arrow.triangle.branch"
+            case .harmonics: return "slider.horizontal.below.rectangle"
             }
         }
     }
@@ -63,7 +67,7 @@ struct CompactToolsView: View {
             Divider()
             
             // Tool selection - compact horizontal scroll (not shown for morph or formula tabs)
-            if selectedToolCategory != .morph && selectedToolCategory != .formula {
+            if ![ToolCategory.morph, .formula, .warp, .harmonics].contains(selectedToolCategory) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         if selectedToolCategory == .shape {
@@ -100,12 +104,12 @@ struct CompactToolsView: View {
             }
             
             // Tool parameters - collapsible with animation (except Morph and Formula tabs which are always shown)
-            if showToolParameters || selectedToolCategory == .morph || selectedToolCategory == .formula {
+            if showToolParameters || [.morph, .formula, .warp, .harmonics].contains(selectedToolCategory) {
                 VStack(spacing: 0) {
                     Divider()
                     
                     // Collapse button (only for Shape and Flow tabs)
-                    if selectedToolCategory != .morph && selectedToolCategory != .formula {
+                    if ![ToolCategory.morph, .formula, .warp, .harmonics].contains(selectedToolCategory) {
                         Button(action: {
                             withAnimation(.spring(response: 0.2)) {
                                 showToolParameters = false
@@ -136,18 +140,22 @@ struct CompactToolsView: View {
                                     projectViewModel: projectViewModel
                                 )
                             } else if selectedToolCategory == .morph {
-                                // Morph tab
                                 morphControlsView
-                            } else {
-                                // Formula tab
+                            } else if selectedToolCategory == .formula {
                                 formulaControlsView
+                            } else if selectedToolCategory == .warp {
+                                WarpPanelView(projectViewModel: projectViewModel)
+                                    .padding(.vertical, 8)
+                            } else if selectedToolCategory == .harmonics {
+                                HarmonicsPanelView(projectViewModel: projectViewModel)
+                                    .padding(.vertical, 8)
                             }
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .padding(.bottom, 10)
                     }
-                    .frame(maxHeight: selectedToolCategory == .morph ? 280 : (selectedToolCategory == .formula ? 400 : 200))
+                    .frame(maxHeight: selectedToolCategory == .morph ? 280 : (selectedToolCategory == .formula ? 400 : (selectedToolCategory == .harmonics ? 360 : (selectedToolCategory == .warp ? 240 : 200))))
                     .scrollIndicators(.hidden)
                 }
                 .transition(.asymmetric(
