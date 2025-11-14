@@ -10,7 +10,7 @@ import SwiftUI
 struct FloatingControlDock: View {
     @ObservedObject var audioEngine: AudioEngine
     @StateObject private var midiManager = MIDIManager()
-    @State private var droneNote: Int = 60 // C4
+    @State private var droneNote: Int = 60 // C4 (default)
     @State private var isDronePlaying = false
     @State private var showExpandedControls = false
     @State private var activeSlider: SliderType?
@@ -62,9 +62,13 @@ struct FloatingControlDock: View {
                 
                 // Note selector
                 Menu {
-                    ForEach(36..<84) { note in
+                    ForEach(12..<109) { note in // C0 to C8 (MIDI notes 12-108)
                         Button(action: {
                             droneNote = note
+                            // Update frequency immediately if playing
+                            if isDronePlaying {
+                                audioEngine.noteOn(note: note, velocity: 0.7)
+                            }
                         }) {
                             HStack {
                                 Text(midiNoteName(note))

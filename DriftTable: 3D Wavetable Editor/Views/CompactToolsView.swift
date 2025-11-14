@@ -13,12 +13,6 @@ struct CompactToolsView: View {
     @ObservedObject var projectViewModel: ProjectViewModel
     @State private var selectedToolCategory: ToolCategory = .shape
     @State private var showToolParameters = false
-    @State private var formulaTargetMode: FormulaTargetMode = .keyShape
-    
-    enum FormulaTargetMode {
-        case keyShape
-        case generatedFrames
-    }
     
     enum ToolCategory: String, CaseIterable {
         case shape = "Shape"
@@ -293,87 +287,37 @@ struct CompactToolsView: View {
     // Formula controls view
     private var formulaControlsView: some View {
         VStack(spacing: 12) {
-            // Mode selector
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Target")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Picker("Mode", selection: $formulaTargetMode) {
-                    Text("Current Key Shape").tag(FormulaTargetMode.keyShape)
-                    Text("Generated Frames").tag(FormulaTargetMode.generatedFrames)
-                }
-                .pickerStyle(.segmented)
-                .disabled(projectViewModel.project.generatedFrames.isEmpty && formulaTargetMode == .generatedFrames)
-            }
-            
-            if formulaTargetMode == .keyShape {
-                // Work on current key shape
-                if let currentShape = projectViewModel.currentKeyShape,
-                   let selectedId = projectViewModel.selectedKeyShapeId {
-                    ExpressionPanelView(
-                        frames: Binding(
-                            get: { [currentShape.samples] },
-                            set: { newFrames in
-                                if let firstFrame = newFrames.first {
-                                    var updatedShape = currentShape
-                                    updatedShape.samples = firstFrame
-                                    projectViewModel.updateCurrentKeyShape(updatedShape)
-                                    projectViewModel.updateOriginalKeyShape(id: selectedId, shape: updatedShape)
-                                }
+            // Work on current key shape only
+            if let currentShape = projectViewModel.currentKeyShape,
+               let selectedId = projectViewModel.selectedKeyShapeId {
+                ExpressionPanelView(
+                    frames: Binding(
+                        get: { [currentShape.samples] },
+                        set: { newFrames in
+                            if let firstFrame = newFrames.first {
+                                var updatedShape = currentShape
+                                updatedShape.samples = firstFrame
+                                projectViewModel.updateCurrentKeyShape(updatedShape)
+                                projectViewModel.updateOriginalKeyShape(id: selectedId, shape: updatedShape)
                             }
-                        ),
-                        selectedFrameIndex: .constant(0),
-                        sampleCount: projectViewModel.project.samplesPerFrame
-                    )
-                } else {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("No key shape selected", systemImage: "exclamationmark.triangle")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                        Text("Select or create a key shape to use formulas.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(10)
-                }
+                        }
+                    ),
+                    selectedFrameIndex: .constant(0),
+                    sampleCount: projectViewModel.project.samplesPerFrame
+                )
             } else {
-                // Work on generated frames
-                if projectViewModel.project.generatedFrames.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("No generated frames", systemImage: "exclamationmark.triangle")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                        Text("Generate frames in the Morph tab to use formulas on the full wavetable.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(10)
-                } else {
-                    ExpressionPanelView(
-                        frames: Binding(
-                            get: { projectViewModel.project.generatedFrames },
-                            set: { newFrames in
-                                projectViewModel.project.generatedFrames = newFrames
-                                projectViewModel.project.frameCount = newFrames.count
-                            }
-                        ),
-                        selectedFrameIndex: Binding(
-                            get: {
-                                guard !projectViewModel.project.generatedFrames.isEmpty else { return 0 }
-                                return min(0, projectViewModel.project.generatedFrames.count - 1)
-                            },
-                            set: { _ in }
-                        ),
-                        sampleCount: projectViewModel.project.samplesPerFrame
-                    )
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("No key shape selected", systemImage: "exclamationmark.triangle")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    Text("Select or create a key shape to use formulas.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(UIColor.systemGray6))
+                .cornerRadius(10)
             }
         }
     }

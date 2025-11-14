@@ -21,62 +21,66 @@ struct FormulaBrowserView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Search bar
-                HStack {
+                // Compact search bar
+                HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
-                    TextField("Search formulas...", text: $searchText)
+                        .font(.caption)
+                    TextField("Search...", text: $searchText)
                         .textFieldStyle(.plain)
+                        .font(.subheadline)
                     
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.secondary)
+                                .font(.caption)
                         }
                     }
                 }
-                .padding(8)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
                 .background(Color(.systemGray6))
-                .cornerRadius(10)
-                .padding(.horizontal)
+                .cornerRadius(8)
+                .padding(.horizontal, 12)
                 .padding(.top, 8)
                 
-                // Category picker
+                // Compact category picker
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         CategoryButton(
-                            title: "Favorites",
-                            icon: "star.fill",
+                            title: "⭐",
+                            icon: "",
                             isSelected: selectedCategory == "Favorites"
                         ) {
                             selectedCategory = "Favorites"
                         }
                         
                         CategoryButton(
-                            title: "My Formulas",
-                            icon: "person.fill",
+                            title: "My",
+                            icon: "",
                             isSelected: selectedCategory == "My Formulas"
                         ) {
                             selectedCategory = "My Formulas"
                         }
                         
-                        ForEach(relevantCategories, id: \.id) { category in
+                        ForEach(relevantCategories.prefix(8), id: \.id) { category in
                             CategoryButton(
-                                title: category.displayName,
-                                icon: "folder.fill",
+                                title: category.displayName.prefix(8).description,
+                                icon: "",
                                 isSelected: selectedCategory == category.id
                             ) {
                                 selectedCategory = category.id
                             }
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 12)
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
                 
                 Divider()
                 
-                // Formula list
+                // Compact formula list
                 List {
                     ForEach(displayedFormulas) { formula in
                         FormulaRow(
@@ -95,23 +99,25 @@ struct FormulaBrowserView: View {
                                 library.deleteUserFormula(id: formula.id)
                             } : nil
                         )
+                        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
                     }
                 }
                 .listStyle(.plain)
             }
-            .navigationTitle(isMultiFrame ? "Multi-Frame Formulas" : "Single-Frame Formulas")
+            .navigationTitle(isMultiFrame ? "Multi" : "Single")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Close") {
                         dismiss()
                     }
+                    .font(.subheadline)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showAddFormula = true }) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.title3)
+                            .font(.subheadline)
                     }
                 }
             }
@@ -122,6 +128,7 @@ struct FormulaBrowserView: View {
                 EditFormulaView(library: library, formula: formula)
             }
         }
+        .presentationDetents([.medium, .large])
     }
     
     // MARK: - Computed Properties
@@ -162,17 +169,19 @@ struct CategoryButton: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.caption)
+            HStack(spacing: 4) {
+                if !icon.isEmpty {
+                    Image(systemName: icon)
+                        .font(.caption2)
+                }
                 Text(title)
-                    .font(.subheadline)
+                    .font(.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 6)
                     .fill(isSelected ? Color.accentColor : Color(.systemGray5))
             )
             .foregroundColor(isSelected ? .white : .primary)
@@ -193,42 +202,39 @@ struct FormulaRow: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(formula.name)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        
-                        Text(formula.category)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(formula.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
                     
-                    Spacer()
-                    
-                    HStack(spacing: 12) {
-                        if formula.isUserCreated {
-                            Image(systemName: "person.crop.circle.fill")
-                                .foregroundColor(.blue)
-                                .font(.caption)
-                        }
-                        
-                        Button(action: onFavorite) {
-                            Image(systemName: formula.isFavorite ? "star.fill" : "star")
-                                .foregroundColor(formula.isFavorite ? .yellow : .gray)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    Text(formula.expression)
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
                 
-                Text(formula.expression)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
+                Spacer()
+                
+                HStack(spacing: 8) {
+                    if formula.isUserCreated {
+                        Image(systemName: "person.crop.circle.fill")
+                            .foregroundColor(.blue)
+                            .font(.caption2)
+                    }
+                    
+                    Button(action: onFavorite) {
+                        Image(systemName: formula.isFavorite ? "star.fill" : "star")
+                            .foregroundColor(formula.isFavorite ? .yellow : .gray)
+                            .font(.caption2)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 6)
         }
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
