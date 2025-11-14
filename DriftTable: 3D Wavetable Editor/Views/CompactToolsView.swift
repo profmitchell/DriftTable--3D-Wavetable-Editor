@@ -13,17 +13,25 @@ struct CompactToolsView: View {
     @ObservedObject var projectViewModel: ProjectViewModel
     @State private var selectedToolCategory: ToolCategory = .shape
     @State private var showToolParameters = false
+    @State private var formulaTargetMode: FormulaTargetMode = .keyShape
+    
+    enum FormulaTargetMode {
+        case keyShape
+        case generatedFrames
+    }
     
     enum ToolCategory: String, CaseIterable {
         case shape = "Shape"
         case flow = "Flow"
         case morph = "Morph"
+        case formula = "Formula"
         
         var icon: String {
             switch self {
             case .shape: return "waveform.path"
             case .flow: return "wind"
             case .morph: return "sparkles"
+            case .formula: return "function"
             }
         }
     }
@@ -60,8 +68,8 @@ struct CompactToolsView: View {
             
             Divider()
             
-            // Tool selection - compact horizontal scroll (not shown for morph tab)
-            if selectedToolCategory != .morph {
+            // Tool selection - compact horizontal scroll (not shown for morph or formula tabs)
+            if selectedToolCategory != .morph && selectedToolCategory != .formula {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         if selectedToolCategory == .shape {
@@ -97,13 +105,13 @@ struct CompactToolsView: View {
                 }
             }
             
-            // Tool parameters - collapsible with animation (except Morph tab which is always shown)
-            if showToolParameters || selectedToolCategory == .morph {
+            // Tool parameters - collapsible with animation (except Morph and Formula tabs which are always shown)
+            if showToolParameters || selectedToolCategory == .morph || selectedToolCategory == .formula {
                 VStack(spacing: 0) {
                     Divider()
                     
                     // Collapse button (only for Shape and Flow tabs)
-                    if selectedToolCategory != .morph {
+                    if selectedToolCategory != .morph && selectedToolCategory != .formula {
                         Button(action: {
                             withAnimation(.spring(response: 0.2)) {
                                 showToolParameters = false
@@ -133,16 +141,19 @@ struct CompactToolsView: View {
                                     flowViewModel: flowViewModel,
                                     projectViewModel: projectViewModel
                                 )
-                            } else {
+                            } else if selectedToolCategory == .morph {
                                 // Morph tab
                                 morphControlsView
+                            } else {
+                                // Formula tab
+                                formulaControlsView
                             }
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .padding(.bottom, 10)
                     }
-                    .frame(maxHeight: selectedToolCategory == .morph ? 280 : 200)
+                    .frame(maxHeight: selectedToolCategory == .morph ? 280 : (selectedToolCategory == .formula ? 400 : 200))
                     .scrollIndicators(.hidden)
                 }
                 .transition(.asymmetric(
@@ -275,6 +286,94 @@ struct CompactToolsView: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(projectViewModel.project.generatedFrames.isEmpty)
+            }
+        }
+    }
+    
+    // Formula controls view
+    private var formulaControlsView: some View {
+        VStack(spacing: 12) {
+            // Mode selector
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Target")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Picker("Mode", selection: $formulaTargetMode) {
+                    Text("Current Key Shape").tag(FormulaTargetMode.keyShape)
+                    Text("Generated Frames").tag(FormulaTargetMode.generatedFrames)
+                }
+                .pickerStyle(.segmented)
+                .disabled(projectViewModel.project.generatedFrames.isEmpty && formulaTargetMode == .generatedFrames)
+            }
+            
+            if formulaTargetMode == .keyShape {
+                // Work on current key shape
+                if let currentShape = projectViewModel.currentKeyShape,
+                   let selectedId = projectViewModel.selectedKeyShapeId {
+                    ExpressionPanelView(
+                        frames: Binding(
+                            get: { [currentShape.samples] },
+                            set: { newFrames in
+                                if let firstFrame = newFrames.first {
+                                    var updatedShape = currentShape
+                                    updatedShape.samples = firstFrame
+                                    projectViewModel.updateCurrentKeyShape(updatedShape)
+                                    projectViewModel.updateOriginalKeyShape(id: selectedId, shape: updatedShape)
+                                }
+                            }
+                        ),
+                        selectedFrameIndex: .constant(0),
+                        sampleCount: projectViewModel.project.samplesPerFrame
+                    )
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("No key shape selected", systemImage: "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        Text("Select or create a key shape to use formulas.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+                }
+            } else {
+                // Work on generated frames
+                if projectViewModel.project.generatedFrames.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("No generated frames", systemImage: "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        Text("Generate frames in the Morph tab to use formulas on the full wavetable.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+                } else {
+                    ExpressionPanelView(
+                        frames: Binding(
+                            get: { projectViewModel.project.generatedFrames },
+                            set: { newFrames in
+                                projectViewModel.project.generatedFrames = newFrames
+                                projectViewModel.project.frameCount = newFrames.count
+                            }
+                        ),
+                        selectedFrameIndex: Binding(
+                            get: {
+                                guard !projectViewModel.project.generatedFrames.isEmpty else { return 0 }
+                                return min(0, projectViewModel.project.generatedFrames.count - 1)
+                            },
+                            set: { _ in }
+                        ),
+                        sampleCount: projectViewModel.project.samplesPerFrame
+                    )
+                }
             }
         }
     }

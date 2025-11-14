@@ -13,6 +13,7 @@ struct FloatingControlDock: View {
     @State private var droneNote: Int = 60 // C4
     @State private var isDronePlaying = false
     @State private var showExpandedControls = false
+    @State private var activeSlider: SliderType?
     
     var body: some View {
         GeometryReader { geometry in
@@ -86,36 +87,45 @@ struct FloatingControlDock: View {
                 }
                 .buttonStyle(.bordered)
                 
-                // Position slider - more compact
-                HStack(spacing: 4) {
-                    Image(systemName: "waveform")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
-                    Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
-                        .tint(.accentColor)
-                    Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .frame(width: 32, alignment: .trailing)
+                // Position control button
+                Button {
+                    activeSlider = .position
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "waveform")
+                            .font(.system(size: 11))
+                        Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
+                            .font(.system(size: 13, weight: .medium))
+                        Spacer()
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.accentColor)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.bordered)
                 
-                // Volume slider - more compact  
-                HStack(spacing: 4) {
-                    Image(systemName: "speaker.wave.2")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
-                    Slider(value: Binding(
-                        get: { Double(audioEngine.volume) },
-                        set: { audioEngine.setVolume(Float($0)) }
-                    ), in: 0.0...1.0)
-                        .tint(.accentColor)
-                    Text(String(format: "%.0f%%", audioEngine.volume * 100))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .frame(width: 32, alignment: .trailing)
+                // Volume control button
+                Button {
+                    activeSlider = .volume
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 11))
+                        Text(String(format: "%.0f%%", audioEngine.volume * 100))
+                            .font(.system(size: 13, weight: .medium))
+                        Spacer()
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.accentColor)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.bordered)
                 
                 // MIDI indicator/selector
                 Menu {
@@ -168,6 +178,32 @@ struct FloatingControlDock: View {
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 0)
+        .sheet(item: $activeSlider) { slider in
+            switch slider {
+            case .position:
+                SliderControlSheet(
+                    title: "Wavetable Position",
+                    value: Binding(
+                        get: { Double(audioEngine.wavetablePosition) },
+                        set: { audioEngine.wavetablePosition = Float($0) }
+                    ),
+                    formattedValue: { value in
+                        String(format: "%.0f%%", value * 100)
+                    }
+                )
+            case .volume:
+                SliderControlSheet(
+                    title: "Volume",
+                    value: Binding(
+                        get: { Double(audioEngine.volume) },
+                        set: { audioEngine.setVolume(Float($0)) }
+                    ),
+                    formattedValue: { value in
+                        String(format: "%.0f%%", value * 100)
+                    }
+                )
+            }
+        }
     }
     
     private var expandedControlsView: some View {
@@ -219,3 +255,47 @@ struct FloatingControlDock: View {
     }
 }
 
+private enum SliderType: Identifiable {
+    case position
+    case volume
+    
+    var id: Int {
+        switch self {
+        case .position: return 0
+        case .volume: return 1
+        }
+    }
+}
+
+private struct SliderControlSheet: View {
+    let title: String
+    @Binding var value: Double
+    var formattedValue: (Double) -> String
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(title)
+                    .font(.title3)
+                    .bold()
+                
+                Slider(value: $value, in: 0...1)
+                
+                Text(formattedValue(value))
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
