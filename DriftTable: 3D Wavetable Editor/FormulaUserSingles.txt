@@ -1,0 +1,264 @@
+[x][ ]
+[x][VARIOUS]
+
+
+[sin(x*pi)*0.4+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.1*sin(x*pi*7)+0.08*sin(x*pi*9)+0.05*tanh(sin(x*pi*11)*1.5)+0.02*sin(x*pi*13)][Odd Harmonic Stack]
+[sin(x*pi)*0.35+0.25*sin(x*pi*2)+0.2*sin(x*pi*4)+0.1*sin(x*pi*6)+0.08*sin(x*pi*8)+0.02*tanh(sin(x*pi*10)*1.2)][Even Harmonic Blend]
+[sin(x*pi)*0.3+0.2*sin(x*pi*2)+0.15*sin(x*pi*3)+0.1*sin(x*pi*5)+0.08*sin(x*pi*7)+0.07*sin(x*pi*9)+0.05*tanh(sin(x*pi*11)*1.5)+0.05*sin(x*pi*13)][Full Harmonic Spectrum]
+[(sin(x*pi*0.995)+sin(x*pi)+sin(x*pi*1.005))*0.4+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.1*tanh(sin(x*pi*7)*1.8)+0.05*sin(x*pi*9)][Chorus with Upper Harmonics]
+[x*0.5+0.25*tanh(sin(x*pi*2)*1.5)+0.15*sin(x*pi*0.5)+0.1*sin(x*pi*4)][Soft Saw Blend]
+[tanh(sin(x*pi)*2)*0.4+0.3*sin(x*pi*2)+0.2*sin(x*pi*3)+0.1*sin(x*pi*5)][Gentle Drive Stack]
+[abs((x*3)%2-1)*0.5+0.3*sin(x*pi)+0.15*sin(x*pi*3)+0.05*tanh(sin(x*pi*5)*1.2)][Soft Triangle Fold Mix]
+[sin(x*pi*(2+sin(x*pi*0.1)*0.5))*0.6+0.25*sin(x*pi*0.5)+0.15*sin(x*pi*5)][Gentle FM Color]
+[asin(sin(x*pi*3)*0.8)/pi*0.6+0.25*sin(x*pi)+0.15*sin(x*pi*5)][Soft Arc Fold Blend]
+[(sin(x*pi)+sin(x*pi*0.997)+sin(x*pi*1.003))*0.3+0.25*tanh(sin(x*pi*2)*1.8)+0.15*sin(x*pi*4)+0.05*sin(x*pi*6)][Wide Detune Stack]
+[sin(x*pi)*0.25+0.2*sin(x*pi*1.5)+0.15*sin(x*pi*2.5)+0.1*sin(x*pi*3.5)+0.1*sin(x*pi*4.5)+0.1*tanh(sin(x*pi*5.5)*1.5)+0.1*sin(x*pi*6.5)][Half Harmonic Series]
+[(q==1)*0.3+(q==3)*0.25+(q==5)*0.2+(q==7)*0.15+(q==9)*0.1][FFT Odd Filter]
+[(q<20)*sqrt(1/q)*0.7+0.3*sin(x*pi)][Limited Harmonic Series]
+[sin(x*pi*0.5)*0.3+sin(x*pi)*0.3+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.05*tanh(sin(x*pi*7)*1.5)][Sub with Odd Upper]
+[tanh(x*3)*0.5+0.25*sin(x*pi)+0.15*sin(x*pi*3)+0.1*sin(x*pi*5)][Linear Fold with Harmonics]
+[sign(sin(x*pi*2))*0.3+0.3*sin(x*pi)+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.05*tanh(sin(x*pi*7)*1.2)][Soft Square Harmonic Mix]
+[(abs(x*2)-1)*0.4+0.3*sin(x*pi*2)+0.2*sin(x*pi*4)+0.1*tanh(sin(x*pi*6)*1.5)][Triangle with Even Stack]
+[sin(x*pi)*sin(x*pi*3)*0.5+0.3*sin(x*pi)+0.15*sin(x*pi*5)+0.05*tanh(sin(x*pi*7)*1.8)][Ring Mod Soft]
+[(x*8)%(2)*0.5-0.25+0.3*sin(x*pi)+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.1*tanh(sin(x*pi*7)*1.5)][Gentle Sync Mix]
+[sin(x*pi*1.618)*0.3+sin(x*pi*2.718)*0.25+sin(x*pi*3.14159)*0.2+sin(x*pi*4)*0.15+0.1*tanh(sin(x*pi*5)*1.2)][Irrational Harmonic Blend]
+[sin(x*pi)*0.3+0.25*tanh(sin(x*pi*0.5)*2)+0.2*sin(x*pi*3)+0.15*sin(x*pi*5)+0.1*sin(x*pi*7)][Sub Drive with Odds]
+[(sin(x*pi*0.998)+sin(x*pi*1.002))*0.35+0.3*tanh(sin(x*pi*2)*1.5)+0.2*sin(x*pi*4)+0.15*sin(x*pi*6)][Tight Chorus Even Stack]
+[abs(sin(x*pi*2+sin(x*pi)*0.5)^1.2)*sign(sin(x*pi*2))*0.5+0.3*sin(x*pi)+0.15*sin(x*pi*5)+0.05*tanh(sin(x*pi*7)*1.5)][Power Curve Mix]
+[sin((x+0.1*sin(x*pi*0.5))*pi)*0.5+0.25*sin(x*pi*3)+0.15*sin(x*pi*5)+0.1*tanh(sin(x*pi*7)*1.8)][Phase Mod Stack]
+[tanh(sin(x*pi*1.5)*2.5)*0.4+0.3*sin(x*pi)+0.2*sin(x*pi*3)+0.1*sin(x*pi*5)][Driven 3rd Harmonic]
+
+
+
+[x][---SINGLES: FOLD (VARIOUS TYPES)---]
+
+[x][---SINGLES: FOLD – GENTLE---]
+[abs((x*3)%2-1)*0.7+0.3*sin(x*pi)][Soft Triangle Fold]
+[asin(sin(x*pi*4)*0.9)/pi*0.8+0.2*sin(x*pi*0.5)][Mild Arc Fold]
+[tanh(sin(x*pi*3)*2)*0.75+0.25*sin(x*pi)][Warm Tanh Fold]
+[(abs((sin(x*pi)*2+x*4)%2-1))*0.8+0.2*sin(x*pi*0.5)][Organic Fold]
+
+
+[x][ ]
+
+
+
+
+[x][---SINGLES: FOLD – MEDIUM---]
+[abs((x*6+sin(x*pi*0.5)*0.5)%2-1)][Classic Wave Fold]
+[sin(x*pi*5)-sign(sin(x*pi*5))*0.6][Soft Clip Fold]
+[2*abs(sin(x*pi*3.5))-1][Sine Triangle Fold]
+[tanh(x*5)*0.9+0.1*sin(x*pi)][Linear Tanh Fold]
+
+
+[x][ ]
+
+
+
+
+[x][---SINGLES: FOLD – AGGRESSIVE---]
+[abs((x*12+sin(x*pi)*sin(x*pi*3))%2-1)][Complex High Fold]
+[asin(sin(x*pi*8))/pi][Hard Arc Fold]
+[tanh(sin(x*pi*6)*5)][Extreme Tanh Fold]
+[sign(sin(x*pi*10))*abs(sin(x*pi*3))][Rectified Pulse Fold]
+[(abs((sin(x*pi*2)*4+x*8)%2-1))][Heavy FM Fold]
+
+
+[x][ ]
+
+
+
+
+[x][---SINGLES: FOLD – SPECIAL CHARACTER---]
+
+[sin(x*pi*(4+2*sin(x*pi*0.25)))*0.8+0.2*sin(x*pi*0.5)][Slow FM Fold]
+[abs(sin(x*pi*2+sin(x*pi)*3)^1.3)*sign(sin(x*pi*2))][Power Curve Fold]
+[(x*8)%(1+sin(x*pi)*0.3)*2-1][Variable Rate Fold]
+[asin(sin(x*pi*5)*cos(x*pi*0.5))/pi][Modulated Arc Fold]
+[tanh((x+0.1*sin(x*pi*0.5))*6)*0.85+0.15*sin(x*pi)][Offset Linear Fold]
+
+
+[x][ ]
+
+[x][---MD_ANLG (Analog Character Singles)---]
+[0.7*(2*(sin(w*1.5705)-0.5))+0.3*sin(x*pi)][MD_ANLG_Analog Saw Sine Soft]
+[sin(x*pi)+0.08*sin(x*pi*2)*exp(-abs(x)*2)][MD_ANLG_Analog Wobble]
+[sin(x*pi*0.99)+sin(x*pi*1.01)][MD_ANLG_Chorus Sine]
+[sin(x*pi)+0.18*sin(x*pi*2)+0.09*sin(x*pi*4)][MD_ANLG_Even Harmonics]
+[0.9*sin(x*pi)+0.05*sin(3*x*pi)+0.02*sin(5*x*pi)][MD_ANLG_Mellow Square-ish]
+[0.9*sin(x*pi)+0.02*rand][MD_ANLG_Noisy Drift Sine]
+[0.8*sin(x*pi)+0.15*sin(3*x*pi)][MD_ANLG_Odd Warm 3rd]
+[0.85*atan(1.1*sin(x*pi))][MD_ANLG_Sine Atan Warm]
+[0.6*sin(x*pi)+0.4*(abs(x*2)-1)][MD_ANLG_SineTriangle Warm]
+[sign(x)*0.85+0.15*sin(x*pi)][MD_ANLG_Soft Square]
+[0.8*sin(x*pi)+0.2*sign(x)][MD_ANLG_Soft Square Warm]
+[0.75*tanh(1.2*sin(x*pi))][MD_ANLG_Tape Sine Soft]
+[x*0.7+0.3*tanh(x*2)][MD_ANLG_Tape Saw]
+[tanh(sin(x*pi)*0.8)][MD_ANLG_Soft Sine Clip]
+[tanh(sin(x*pi)*1.5)][MD_ANLG_Tube Saturation]
+[0.8*sin(x*pi)][MD_ANLG_Sub Sine Gentle]
+[0.8*sin(x*pi)+0.1*sin(2*x*pi)+0.04*sin(3*x*pi)][MD_ANLG_Vintage Organ 1]
+[(abs(x*2)-1)*0.9+0.1*sin(x*pi*2)][MD_ANLG_Warm Triangle]
+[0.95*sin(x*pi)][MD_ANLG_Warm Sine 1]
+[0.9*sin(x*pi)+0.08*sin(2*x*pi)][MD_ANLG_Warm Sine 2]
+[0.9*sin(x*pi)+0.06*sin(3*x*pi)+0.03*sin(5*x*pi)][MD_ANLG_Warm Sine 3]
+
+
+[x][ ]
+
+
+
+
+
+[x][---MD_ATMO (Atmospheric / Space Textures)---]
+[sin(x*pi*0.994)+sin(x*pi)+sin(x*pi*1.006)+0.02*sin(x*pi*2)][MD_ATMmDetunedAtmos]
+[(q<50)*(1/q^0.5)*(1+0.05*cos(q*0.3))][MD_ATMO_CombFilterPad]
+[(q<30)*sqrt(1/q)*exp(-q*0.15)+(q==11)*0.05+(q==13)*0.03][MD_ATMO_HollowSpace]
+[(q<35)*sqrt(1/q)+(q>20&&q<25)*0.02][MD_ATMONotchedAtmos]
+[(q==1)*0.5+(q==2)*0.2+(q==3)*0.15+(q==5)*0.1+(q==7)*0.05][MD_ATMO_ModalAtmos]
+[sin(x*pi)+0.03*sin(x*pi*1.5)+0.02*sin(x*pi*2.5)+0.01*sin(x*pi*3.5)][MD_ATMO_MetallicShimmer]
+[sin(x*pi)+0.02*sin(x*pi*3)+0.01*sin(x*pi*7)+0.005*sin(x*pi*11)][MD_ATMO_PrimeHarmonics]
+[sin(x*pi)*(1+0.003*sin(x*256))][MD_ATMO_MicroPhase]
+
+
+
+[x][ ]
+
+
+
+
+[x][---MD_BASS (Bass Harmonics & Spectra)---]
+[abs(x)*sin(x*pi*16)][MD_BASS_Amplitude Shaped]
+[sin(x*pi*1.01)+sin(x*pi*0.99)][MD_BASS_Beating Modulator]
+[sin(x*pi*7)+0.2*sin(x*pi*3)][MD_BASS_Bell FM Ratios]
+[sin(x*pi)+0.2*sin(x*pi*3)+0.1*sin(x*pi*5)+0.05*sin(x*pi*7)][MD_BASS_Clarinet]
+[sin(x*pi)+0.05*sin(x*pi*2)+0.02*sin(x*pi*4)][MD_BASS_Clean Bass Harmonics]
+[sin(x*pi)+0.03*sin(x*pi*3)*sin(x*pi*0.25)][MD_BASS_Complex Ring Mod]
+[(sin(x*pi)+1)*0.5][MD_BASS_DC Offset Sine]
+[sin(x*pi)+0.08*sin(x*pi*2.01)+0.04*sin(x*pi*3.02)][MD_BASS_Detuned Stack]
+[0.95*sin((x+0.02)*pi)][MD_BASS_Drift Sine A]
+[0.9*sin((x+0.15*x*x)*pi)][MD_BASS_Drift Sine B]
+[tanh(sin(x*pi)*2+0.1*sin(x*pi*3))][MD_BASS_Driven Third]
+[(q<6)*(1/q^0.8)][MD_BASS_Minimal Bass Spectrum]
+[(q<15)*(1/q^0.7)][MD_BASS_Mellow Rolloff]
+[sin(x*pi)+0.04*sin(x*pi*4)+0.02*sin(x*pi*8)][MD_BASS_Octave Harmonics]
+[(q<20)*sqrt(1/q)*(1+0.02*sin(q))][MD_BASS_Organic Spectrum]
+[sin(x*pi)+0.15*sin(x*pi*2)*sin(x*pi*8)][MD_BASS_Ring Mod Warmth]
+[(q<20)*(1/q^0.6)][MD_BASS_Smooth Rolloff]
+[(q<10),sqrt(1/q)][MD_BASS_Sub Filtered Spectrum]
+[sin(x*pi)+0.03*sin(x*pi*3)][MD_BASS_Subtle Third]
+[(q<12)*(1/q^0.7)][MD_BASS_Tight Bass Spectrum]
+[(q<5)*(1/q)][MD_BASS_Warm Harmonics]
+[(q<8)*(1/q^0.8)][MD_BASS_Warm Harmonics Shelf]
+[(q<16)*(1/q^0.9)][MD_BASS_Warm Bass Spectrum]
+[(q<6)*(1/q^0.7)][MD_BASS_Warm Triangle Spectrum]
+[(q<10)*(1/q^0.6)][MD_BASS_Warmth Emphasis]
+[(q<8)*(1/q^0.5)][MD_BASS_Wide Bass Spectrum]
+[(q<5)*(1/q^0.5)][MD_BASS_Weighty Fundamentals]
+
+
+
+[x][ ]
+
+
+
+
+[x][---MD_PROC (General Spectral Process Shapes)---]
+[(q<8)*(1/q^0.4)][MD_PROC_Bright Bass Shelf]
+[(q<48)*(1/q^0.7)][MD_PROC_Broad Shelf]
+[(q<12)*(1/q^1.2)][MD_PROC_Dark Spectrum]
+[(q<64)*(1/q^1.1)][MD_PROC_Dull Shelf]
+[(q<24)*(1/q^0.3)][MD_PROC_Extreme Bright]
+[(q<32)*(1/q)][MD_PROC_Flat Spectrum]
+[(q<12)*(1/q^1.3)][MD_PROC_Damped]
+[(q<5)*(1/q^0.4)][MD_PROC_High Weight]
+[((q%2)==1)*(1/q^0.6)][MD_PROC_Hollow Warmth]
+[(q<32)*(1/q^0.6)][MD_PROC_Hi-Mid Focus]
+[(q<20)*(1/q^1.5)][MD_PROC_Heavily Damped]
+[(q<10)*(1/q^0.5)][MD_PROC_Generic Bass Shelf]
+[(q<40)*(1/q^0.5)][MD_PROC_Wide Presence]
+[(q<20)*(1/q^0.5)][MD_PROC_Wide Bright Spectrum]
+[(q<4)*sqrt(1/q)][MD_PROC_Ultra Sub Focus Spectrum]
+[(q<6)*(1/q^0.8)][MD_PROC_Minimal Bass Spectrum]
+[(q<15)*(1/q^0.7)][MD_PROC_Mellow Rolloff]
+[(q<20)*sqrt(1/q)*(1+0.02*sin(q))][MD_PROC_Organic Spectrum Wide]
+[(q<12)*(1/q^0.6)*(1+0.05*sin(q*0.5))][MD_PROC_Organic Spectrum]
+[(q<12)*(1/q^0.4)][MD_PROC_Open Spectrum]
+[(q<25)*(1/q^0.9)][MD_PROC_Soft High Roll]
+[(q<15)*(1/q^0.9)][MD_PROC_Soft Shelf]
+[(q<32)*(1/q^0.8)][MD_PROC_Smooth Shelf]
+[(q<15)*(1/q^0.8)][MD_PROC_Smooth Rolloff]
+[(q<8)*0.8+(q==2)*0.2][MD_PROC_Sub Enhancement]
+[(q<16)*(1/q^0.6)][MD_PROC_Warm Wide Spectrum]
+
+
+
+[x][ ]
+
+
+
+
+[x][---MD_PAD (Pad / Air / Width Singles)---]
+[sin(x*pi)+0.02*sin(x*pi*4)+0.01*sin(x*pi*8)+0.005*sin(x*pi*16)][MD_PAD_OctaveAir]
+[0.7*sin((x+0.05*x*x)*pi)+0.3*sin((x-0.03)*pi)][MD_PAD_Pad Drift Duo]
+[0.7*(0.8*sin(x*pi)+0.2*sin(2*x*pi))+0.05*rand][MD_PAD_Pad Air Noise]
+[0.8*tanh(1.1*(0.8*sin(x*pi)+0.2*sin(2*x*pi)))][MD_PAD_Pad Gentle Saturated]
+[0.75*sin(x*pi)*(1-0.3*abs(x))][MD_PAD_Pad Hollow Center]
+[0.5*sin(x*pi)+0.25*sin(2*x*pi)+0.2*sin(3*x*pi)+0.05*sin(4*x*pi)][MD_PAD_Pad Soft Sawish]
+[0.6*sin(x*pi)+0.3*sin(2*x*pi)+0.1*sin(3*x*pi)][MD_PAD_Pad Warm Gentle]
+[0.65*(abs(x*2)-1)+0.35*sin(x*pi)][MD_PAD_Pad Tri Sine Blend]
+[0.7*sin((x+0.08)*pi)+0.3*sin((x-0.04)*pi)][MD_PAD_Pad Subtle Chorus]
+[sin(x*pi)+0.04*sin(x*pi*2)+0.02*sin(x*pi*3)+0.01*sin(x*pi*5)+0.005*sin(x*pi*7)][MD_PAD_BreathyPad]
+[sin(x*pi*0.997)+sin(x*pi*1.003)+0.01*sin(x*pi*2.006)][MD_PAD_ChorusPad]
+[sin(x*pi*0.5)*0.3+sin(x*pi)*0.5+sin(x*pi*2)*0.15+sin(x*pi*3)*0.05][MD_PAD_DeepStack]
+[(q<40)*(1/q^0.4)*exp(-q*0.08)][MD_PAD_SoftLPPad]
+[sin(x*pi*0.25)*0.15+sin(x*pi*0.5)*0.25+sin(x*pi)*0.6][MD_PAD_SubFoundation]
+[tanh(sin(x*pi)*0.6+0.02*sin(x*pi*5)+0.01*sin(x*pi*7))][MD_PAD_VintageString]
+
+
+[x][ ]
+
+
+
+
+
+[x][---MD_REES (Reese / Detuned Bass Root Shapes)---]
+[sin(x*pi)+0.1*sin(x*pi*2)*sin(x*pi*16)][MD_REES_Wobble Plus Second]
+[sin(x*pi*0.97)+sin(x*pi*1.03)+0.05*sin(x*pi*2)][MD_REES_Huge Reese]
+[sin(x*pi*0.99)+sin(x*pi*1.01)][MD_REES_Chorus Sine Reese]
+[sin(x*pi*0.995)+sin(x*pi*1.005)][MD_REES_Reese Foundation]
+[sin(x*pi*0.99)+sin(x*pi*1.01)+0.03*sin(x*pi*2)][MD_REES_Reese Plus Second]
+[sin(x*pi*0.98)+sin(x*pi*1.02)][MD_REES_Wide Reese]
+
+
+
+[x][ ]
+
+
+
+
+[x][---MD_SUB (Sub / Low-End Building Blocks)---]
+[tanh(sin(x*pi)*1.2+0.1*sin(x*pi*3))][MD_SUB_Driven Sub]
+[sin(x*pi)*(1+0.01*tanh(sin(x*pi)*2))][MD_SUB_Gentle Saturation]
+[(q<3)*0.8+(q==3)*0.15+(q==5)*0.05][MD_SUB_Hollow Sub]
+[(q==1)*0.7+(q==2)*0.15+(q==3)*0.1+(q==7)*0.05][MD_SUB_Jump Up Sub]
+[sin(x*pi*0.5)*0.6+sin(x*pi)*0.4+0.05*sin(x*pi*3)][MD_SUB_Layered Subs]
+[sin(x*pi)+0.08*sin(x*pi*2)][MD_SUB_Minimal Sub]
+[sin(x*pi)+0.06*sin(x*pi*2)*cos(x*pi*16)][MD_SUB_Modulated Second]
+[sin(x*pi)+0.015*sin(x*64)][MD_SUB_Phase Modulated Sub]
+[(q==1)*0.85+(q==2)*0.1+(q==3)*0.05][MD_SUB_Precise Sub]
+[(q==1)*0.9+(q==2)*0.1][MD_SUB_Pure Sub]
+[(q<12)*(1/q^0.5)+(q==2)*0.3*sin(q*0.2)][MD_SUB_Resonant Sub Character]
+[sin(x*pi*0.95)][MD_SUB_Slightly Detuned Sub]
+[sin(x*pi*0.5)+0.3*sin(x*pi*1.5)][MD_SUB_Sub + Fifth FM]
+[0.9*sin(x*pi)][MD_SUB_Sub Basic Sine]
+[0.9*sin(x*pi)*(1-0.15*abs(x))][MD_SUB_Sub Center Focus]
+[0.95*sin(x*pi)+0.03*rand][MD_SUB_Sub Drift Noise]
+[0.8*sin((x+0.03)*pi)+0.2*sin((x-0.02)*pi)][MD_SUB_Sub Duo Slight Phase]
+[(q<8)*0.8+(q==2)*0.2][MD_SUB_Sub Enhancement]
+[sin(x*pi)*0.98+0.02*sin(x*pi*0.5)][MD_SUB_Sub Layer]
+[((q<9)?in:0)][MD_SUB_Sub Low Harm Filter (q)]
+[sin(x*pi*0.5)+0.7*sin(x*pi)][MD_SUB_Sub Octave Blend]
+[sin(x*pi*0.997)][MD_SUB_Ultra Subtle Detune]
+[(q<4)*sqrt(1/q)][MD_SUB_Ultra Sub Focus]
+[(q<8)*sqrt(1/q)*(1+0.1*rand)][MD_SUB_Vintage Sub Bass]
