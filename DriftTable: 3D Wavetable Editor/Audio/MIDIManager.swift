@@ -75,10 +75,12 @@ class MIDIManager: ObservableObject {
         }
     }
     
-    func selectDevice(_ device: MIDIDeviceInfo) {
+    func selectDevice(_ device: MIDIDeviceInfo?) {
         disconnectCurrentDevice()
         selectedDevice = device
-        connectToDevice(device)
+        if let device = device {
+            connectToDevice(device)
+        }
     }
     
     private func connectToDevice(_ device: MIDIDeviceInfo) {

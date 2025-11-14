@@ -293,28 +293,41 @@ struct MainWindowView: View {
     }
     
     private var portraitLayout: some View {
-        VStack(spacing: 0) {
-            compactToolbar
-            waveformArea
-                .frame(maxHeight: .infinity)
-            portraitToolsPanel
-            AudioPreviewView(audioEngine: audioEngine)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                compactToolbar
+                waveformArea
+                    .frame(maxHeight: .infinity)
+                CompactToolsView(
+                    toolsViewModel: toolsViewModel,
+                    flowViewModel: flowViewModel,
+                    projectViewModel: projectViewModel
+                )
+            }
+            
+            // Floating control dock at bottom - overlays content
+            FloatingControlDock(audioEngine: audioEngine)
+                .padding(.bottom, 8)
         }
     }
     
     private var landscapeLayout: some View {
-        VStack(spacing: 0) {
-            compactToolbar
-            GeometryReader { _ in
-                ZStack {
-                    waveformContent
-                    if UIDevice.current.userInterfaceIdiom == .phone {
-                        inspectorOverlayButton
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                compactToolbar
+                GeometryReader { _ in
+                    ZStack {
+                        waveformContent
+                        if UIDevice.current.userInterfaceIdiom == .phone {
+                            inspectorOverlayButton
+                        }
                     }
                 }
             }
-            AudioPreviewView(audioEngine: audioEngine)
-                .frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 120 : 150)
+            
+            // Floating control dock at bottom - overlays content
+            FloatingControlDock(audioEngine: audioEngine)
+                .padding(.bottom, 8)
         }
     }
     
@@ -472,61 +485,91 @@ struct MainWindowView: View {
     private var inspectorView: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Key Shapes Section (A, B, C layers)
-                VStack(alignment: .leading, spacing: 12) {
+                // Key Shapes Section - Modern prioritized design
+                VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Key Shapes")
+                        Label("Key Shapes", systemImage: "waveform.path")
                             .font(.headline)
+                            .foregroundColor(.primary)
                         Spacer()
                         Button(action: { projectViewModel.addKeyShape() }) {
-                            Image(systemName: "plus")
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.plain)
+                        .foregroundColor(.accentColor)
                     }
                     .padding(.horizontal)
                     
-                    ForEach(projectViewModel.project.keyShapes) { keyShape in
-                        HStack {
-                            Text(keyShape.id)
-                                .font(.title3)
-                                .foregroundColor(projectViewModel.selectedKeyShapeId == keyShape.id ? .accentColor : .primary)
-                            Spacer()
-                            
-                            HStack(spacing: 8) {
-                                Button(action: { projectViewModel.duplicateKeyShape(keyShape.id) }) {
-                                    Image(systemName: "doc.on.doc")
-                                }
-                                .buttonStyle(.bordered)
+                    // Compact key shape cards
+                    VStack(spacing: 8) {
+                        ForEach(projectViewModel.project.keyShapes) { keyShape in
+                            HStack(spacing: 12) {
+                                // Selection indicator
+                                Circle()
+                                    .fill(projectViewModel.selectedKeyShapeId == keyShape.id ? Color.accentColor : Color.clear)
+                                    .frame(width: 8, height: 8)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.accentColor, lineWidth: projectViewModel.selectedKeyShapeId == keyShape.id ? 0 : 2)
+                                    )
                                 
-                                Button(action: { projectViewModel.deleteKeyShape(keyShape.id) }) {
-                                    Image(systemName: "trash")
+                                // Shape ID
+                                Text(keyShape.id)
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(projectViewModel.selectedKeyShapeId == keyShape.id ? .accentColor : .primary)
+                                    .frame(width: 40, alignment: .leading)
+                                
+                                Spacer()
+                                
+                                // Actions
+                                HStack(spacing: 6) {
+                                    Button(action: { projectViewModel.duplicateKeyShape(keyShape.id) }) {
+                                        Image(systemName: "doc.on.doc")
+                                            .font(.system(size: 14))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .foregroundColor(.secondary)
+                                    
+                                    Button(action: { projectViewModel.deleteKeyShape(keyShape.id) }) {
+                                        Image(systemName: "trash")
+                                            .font(.system(size: 14))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .foregroundColor(.red)
+                                    .disabled(projectViewModel.project.keyShapes.count <= 1)
+                                    .opacity(projectViewModel.project.keyShapes.count <= 1 ? 0.3 : 1.0)
                                 }
-                                .buttonStyle(.bordered)
-                                .disabled(projectViewModel.project.keyShapes.count <= 1)
                             }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .background(projectViewModel.selectedKeyShapeId == keyShape.id ? Color.accentColor.opacity(0.1) : Color.clear)
-                        .cornerRadius(8)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            projectViewModel.selectKeyShape(keyShape.id)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(projectViewModel.selectedKeyShapeId == keyShape.id ? 
+                                          Color.accentColor.opacity(0.15) : 
+                                          Color(UIColor.secondarySystemBackground))
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.2)) {
+                                    projectViewModel.selectKeyShape(keyShape.id)
+                                }
+                            }
                         }
                     }
                 }
-                .padding(.vertical)
+                .padding(.vertical, 8)
                 
                 Divider()
                 
-                // Morph Settings Section
+                // Morph Settings Section - Compact modern design
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Morph Settings")
+                    Label("Morph Settings", systemImage: "slider.horizontal.3")
                         .font(.headline)
                         .padding(.horizontal)
                     
-                    // Frame Count
-                    VStack(alignment: .leading, spacing: 4) {
+                    // Frame Count - Compact segmented control
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Frame Count")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -543,8 +586,8 @@ struct MainWindowView: View {
                         .padding(.horizontal)
                     }
                     
-                    // Morph Style
-                    VStack(alignment: .leading, spacing: 4) {
+                    // Morph Style - Compact menu
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Morph Style")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -560,109 +603,53 @@ struct MainWindowView: View {
                         .pickerStyle(.menu)
                         .padding(.horizontal)
                     }
-                    
-                    // Generate Button
-                    Button(action: {
-                        projectViewModel.generateFrames()
-                    }) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                            Text("Generate Frames")
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal)
-                    .disabled(projectViewModel.project.keyShapes.count < 2)
-                    
-                    // Normalize Button
-                    Button(action: {
-                        projectViewModel.normalizeFrames()
-                    }) {
-                        HStack {
-                            Image(systemName: "waveform")
-                            Text("Normalize")
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.horizontal)
-                    .disabled(projectViewModel.project.generatedFrames.isEmpty)
                 }
-                .padding(.vertical)
-                
-                Divider()
-                
-                // Tools Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Picker("", selection: $selectedToolTab) {
-                        Text("Shape").tag(0)
-                        Text("Flow").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    
-                    if selectedToolTab == 0 {
-                        ToolSidebarView(
-                            toolsViewModel: toolsViewModel,
-                            projectViewModel: projectViewModel
-                        )
-                        .onChange(of: toolsViewModel.selectedTool) { oldTool, newTool in
-                            toolApplicationTask?.cancel()
-                            if newTool != .smoothBrush,
-                               let currentShapeId = projectViewModel.selectedKeyShapeId {
-                                if let current = projectViewModel.currentKeyShape {
-                                    projectViewModel.updateOriginalKeyShape(id: currentShapeId, shape: current)
-                                }
-                            }
-                        }
-                    } else {
-                        FlowSidebarView(flowViewModel: flowViewModel, projectViewModel: projectViewModel)
-                    }
-                }
+                .padding(.vertical, 8)
             }
         }
         .navigationTitle("Inspector")
         .navigationBarTitleDisplayMode(.inline)
     }
     
-    // MARK: - Compact Toolbar
+    // MARK: - Compact Toolbar - Modern iOS design
     private var compactToolbar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                Button(action: { newProject() }) {
-                    Image(systemName: "doc.badge.plus")
-                        .font(.caption)
-                        .frame(width: 32, height: 32)
-                }
-                .buttonStyle(.bordered)
-                
-                Button(action: { showOpenProjectPicker = true }) {
-                    Image(systemName: "folder")
-                        .font(.caption)
-                        .frame(width: 32, height: 32)
-                }
-                .buttonStyle(.bordered)
-                
-                Button(action: { showSaveProjectPicker = true }) {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.caption)
-                        .frame(width: 32, height: 32)
+            HStack(spacing: 8) {
+                // Project actions
+                Menu {
+                    Button(action: { newProject() }) {
+                        Label("New Project", systemImage: "doc.badge.plus")
+                    }
+                    Button(action: { showOpenProjectPicker = true }) {
+                        Label("Open...", systemImage: "folder")
+                    }
+                    Button(action: { showSaveProjectPicker = true }) {
+                        Label("Save", systemImage: "square.and.arrow.down")
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "doc")
+                            .font(.system(size: 14, weight: .medium))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10))
+                    }
+                    .frame(width: 44, height: 36)
                 }
                 .buttonStyle(.bordered)
                 
                 Divider()
                     .frame(height: 24)
                 
+                // Import/Export
                 Button(action: { showImportAudioPicker = true }) {
                     if isImporting {
                         ProgressView()
                             .scaleEffect(0.7)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 36, height: 36)
                     } else {
                         Image(systemName: "square.and.arrow.down")
-                            .font(.caption)
-                            .frame(width: 32, height: 32)
+                            .font(.system(size: 14, weight: .medium))
+                            .frame(width: 36, height: 36)
                     }
                 }
                 .buttonStyle(.bordered)
@@ -670,16 +657,21 @@ struct MainWindowView: View {
                 
                 Button(action: { showExportWavetablePicker = true }) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.caption)
-                        .frame(width: 32, height: 32)
+                        .font(.system(size: 14, weight: .medium))
+                        .frame(width: 36, height: 36)
                 }
                 .buttonStyle(.bordered)
                 .disabled(projectViewModel.project.generatedFrames.isEmpty)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
         }
-        .padding(.vertical, 6)
-        .background(Color(UIColor.secondarySystemBackground))
+        .padding(.vertical, 8)
+        .background {
+            // Modern glass effect
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+        }
     }
     
     // MARK: - Empty State

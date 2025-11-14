@@ -113,7 +113,7 @@ struct AudioPreviewView: View {
                     .foregroundColor(.secondary)
                 Picker("", selection: Binding(
                     get: { midiManager.selectedDevice },
-                    set: { if let device = $0 { midiManager.selectDevice(device) } }
+                    set: { midiManager.selectDevice($0) }
                 )) {
                     Text("None").tag(nil as MIDIManager.MIDIDeviceInfo?)
                     ForEach(midiManager.availableDevices) { device in
