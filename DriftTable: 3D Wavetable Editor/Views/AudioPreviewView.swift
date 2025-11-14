@@ -13,8 +13,7 @@ struct AudioPreviewView: View {
     @State private var holdNote = false
     @State private var droneNote: Int = 60 // C4
     @State private var isDronePlaying = false
-    @State private var showPositionPopover = false
-    @State private var showVolumePopover = false
+    @State private var activeSlider: SliderControl?
     
     var body: some View {
         VStack(spacing: 12) {
@@ -86,7 +85,7 @@ struct AudioPreviewView: View {
                         .frame(width: 32, alignment: .leading)
                     
                     Button {
-                        showPositionPopover = true
+                        activeSlider = .position
                     } label: {
                         HStack {
                             Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
@@ -99,18 +98,6 @@ struct AudioPreviewView: View {
                         .frame(height: 30)
                     }
                     .buttonStyle(.bordered)
-                    .popover(isPresented: $showPositionPopover, arrowEdge: .bottom) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Wavetable Position")
-                                .font(.headline)
-                            Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
-                            Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .frame(minWidth: 220)
-                    }
                 }
                 
                 // Volume
@@ -121,7 +108,7 @@ struct AudioPreviewView: View {
                         .frame(width: 32, alignment: .leading)
                     
                     Button {
-                        showVolumePopover = true
+                        activeSlider = .volume
                     } label: {
                         HStack {
                             Text(String(format: "%.0f%%", audioEngine.volume * 100))
@@ -134,21 +121,6 @@ struct AudioPreviewView: View {
                         .frame(height: 30)
                     }
                     .buttonStyle(.bordered)
-                    .popover(isPresented: $showVolumePopover, arrowEdge: .bottom) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Volume")
-                                .font(.headline)
-                            Slider(value: Binding(
-                                get: { Double(audioEngine.volume) },
-                                set: { audioEngine.setVolume(Float($0)) }
-                            ), in: 0.0...1.0)
-                            Text(String(format: "%.0f%%", audioEngine.volume * 100))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .frame(minWidth: 220)
-                    }
                 }
             }
             
@@ -183,6 +155,32 @@ struct AudioPreviewView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(Color(UIColor.secondarySystemBackground))
+        .sheet(item: $activeSlider) { slider in
+            switch slider {
+            case .position:
+                SliderSheet(
+                    title: "Wavetable Position",
+                    value: Binding(
+                        get: { Double(audioEngine.wavetablePosition) },
+                        set: { audioEngine.wavetablePosition = Float($0) }
+                    ),
+                    formattedValue: { value in
+                        String(format: "%.0f%%", value * 100)
+                    }
+                )
+            case .volume:
+                SliderSheet(
+                    title: "Volume",
+                    value: Binding(
+                        get: { Double(audioEngine.volume) },
+                        set: { audioEngine.setVolume(Float($0)) }
+                    ),
+                    formattedValue: { value in
+                        String(format: "%.0f%%", value * 100)
+                    }
+                )
+            }
+        }
     }
     
     private func midiNoteName(_ note: Int) -> String {
@@ -190,5 +188,50 @@ struct AudioPreviewView: View {
         let octave = (note / 12) - 1
         let noteIndex = note % 12
         return "\(noteNames[noteIndex])\(octave)"
+    }
+}
+
+private enum SliderControl: Identifiable {
+    case position
+    case volume
+    
+    var id: Int {
+        switch self {
+        case .position: return 0
+        case .volume: return 1
+        }
+    }
+}
+
+private struct SliderSheet: View {
+    let title: String
+    @Binding var value: Double
+    var formattedValue: (Double) -> String
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(title)
+                    .font(.title3)
+                    .bold()
+                
+                Slider(value: $value, in: 0...1)
+                
+                Text(formattedValue(value))
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
     }
 }
