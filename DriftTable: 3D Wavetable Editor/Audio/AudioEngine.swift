@@ -186,7 +186,10 @@ class AudioEngine: ObservableObject {
         frequency = midiNoteToFrequency(note)
         isNoteHeld = true
         
-        if !isPlaying {
+        // Always update frequency, even if already playing
+        if isPlaying {
+            // Frequency will be used in next buffer generation
+        } else {
             play()
         }
     }
@@ -265,6 +268,13 @@ class AudioEngine: ObservableObject {
         
         // Generate audio using wavetable oscillator or single cycle
         let sampleRateFloat = Float(sampleRate)
+        // Always sync frequency with current MIDI note if set
+        if let currentNote = currentMIDINote {
+            let newFrequency = midiNoteToFrequency(currentNote)
+            if abs(frequency - newFrequency) > 0.1 { // Only update if significantly different
+                frequency = newFrequency
+            }
+        }
         let phaseIncrement = frequency / sampleRateFloat
         
         var maxSample: Float = 0.0

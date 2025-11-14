@@ -54,7 +54,7 @@ struct ExpressionPanelView: View {
                 
                 TextEditor(text: $expressionText)
                     .font(.system(.body, design: .monospaced))
-                    .frame(height: 100)
+                    .frame(height: 60)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.gray.opacity(0.3), lineWidth: 1)
@@ -192,6 +192,9 @@ struct ExpressionPanelView: View {
             ) { expression in
                 expressionText = expression
                 updateDetectedMode()
+            } onModeChanged: { isMulti in
+                // When mode changes in browser, update detected mode
+                updateDetectedMode()
             }
         }
     }
@@ -285,11 +288,21 @@ struct ExpressionPanelView: View {
                         sampleCount: sampleCount
                     )
                 case .multiFrame:
+                    // For multi-frame, ensure we have multiple frames to work with
+                    // If we only have 1 frame (from key shape), create a wavetable
+                    if newFrames.count <= 1 {
+                        // Create frames from current single frame (repeat it as base)
+                        let currentFrame = frames.first ?? Array(repeating: Float(0.0), count: sampleCount)
+                        // Create 256 frames for a full wavetable
+                        newFrames = Array(repeating: currentFrame, count: 256)
+                    }
+                    // Ensure selectedFrameIndex is valid for multi-frame
+                    let validSelectedIndex = min(selectedFrameIndex, newFrames.count - 1)
                     try applyExpressionMultiFrame(
                         compiled: compiled,
                         engine: engine,
                         frames: &newFrames,
-                        selectedFrameIndex: selectedFrameIndex,
+                        selectedFrameIndex: max(0, validSelectedIndex),
                         sampleCount: sampleCount
                     )
                 }

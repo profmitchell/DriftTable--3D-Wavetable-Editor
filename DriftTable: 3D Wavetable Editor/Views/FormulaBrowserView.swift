@@ -13,10 +13,17 @@ struct FormulaBrowserView: View {
     @State private var selectedCategory: String = "Favorites"
     @State private var showAddFormula = false
     @State private var editingFormula: FormulaEntry?
+    @State private var isMultiFrame: Bool
     
-    let isMultiFrame: Bool
     let onSelectFormula: (String) -> Void
+    let onModeChanged: ((Bool) -> Void)?
     @Environment(\.dismiss) private var dismiss
+    
+    init(isMultiFrame: Bool, onSelectFormula: @escaping (String) -> Void, onModeChanged: ((Bool) -> Void)? = nil) {
+        _isMultiFrame = State(initialValue: isMultiFrame)
+        self.onSelectFormula = onSelectFormula
+        self.onModeChanged = onModeChanged
+    }
     
     var body: some View {
         NavigationStack {
@@ -80,31 +87,34 @@ struct FormulaBrowserView: View {
                 
                 Divider()
                 
-                // Compact formula list
-                List {
-                    ForEach(displayedFormulas) { formula in
-                        FormulaRow(
-                            formula: formula,
-                            onTap: {
-                                onSelectFormula(formula.expression)
-                                dismiss()
-                            },
-                            onFavorite: {
-                                library.toggleFavorite(id: formula.id)
-                            },
-                            onEdit: formula.isUserCreated ? {
-                                editingFormula = formula
-                            } : nil,
-                            onDelete: formula.isUserCreated ? {
-                                library.deleteUserFormula(id: formula.id)
-                            } : nil
-                        )
-                        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                // Compact formula list - use ScrollView to prevent popover resizing
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(displayedFormulas) { formula in
+                            FormulaRow(
+                                formula: formula,
+                                onTap: {
+                                    onSelectFormula(formula.expression)
+                                    dismiss()
+                                },
+                                onFavorite: {
+                                    library.toggleFavorite(id: formula.id)
+                                },
+                                onEdit: formula.isUserCreated ? {
+                                    editingFormula = formula
+                                } : nil,
+                                onDelete: formula.isUserCreated ? {
+                                    library.deleteUserFormula(id: formula.id)
+                                } : nil
+                            )
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            Divider()
+                        }
                     }
                 }
-                .listStyle(.plain)
             }
-            .navigationTitle(isMultiFrame ? "Multi" : "Single")
+            .navigationTitle("Formulas")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -112,6 +122,18 @@ struct FormulaBrowserView: View {
                         dismiss()
                     }
                     .font(.subheadline)
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Picker("Mode", selection: $isMultiFrame) {
+                        Text("Single").tag(false)
+                        Text("Multi").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 120)
+                    .onChange(of: isMultiFrame) { _, newValue in
+                        onModeChanged?(newValue)
+                    }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {

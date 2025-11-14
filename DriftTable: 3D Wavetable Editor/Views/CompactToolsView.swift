@@ -292,13 +292,31 @@ struct CompactToolsView: View {
                let selectedId = projectViewModel.selectedKeyShapeId {
                 ExpressionPanelView(
                     frames: Binding(
-                        get: { [currentShape.samples] },
+                        get: { 
+                            // Return current frames if wavetable exists, otherwise single key shape
+                            if !projectViewModel.project.generatedFrames.isEmpty {
+                                return projectViewModel.project.generatedFrames
+                            } else {
+                                return [currentShape.samples]
+                            }
+                        },
                         set: { newFrames in
-                            if let firstFrame = newFrames.first {
-                                var updatedShape = currentShape
-                                updatedShape.samples = firstFrame
-                                projectViewModel.updateCurrentKeyShape(updatedShape)
-                                projectViewModel.updateOriginalKeyShape(id: selectedId, shape: updatedShape)
+                            if newFrames.count == 1 {
+                                // Single frame - update key shape and clear wavetable
+                                if let firstFrame = newFrames.first {
+                                    var updatedShape = currentShape
+                                    updatedShape.samples = firstFrame
+                                    projectViewModel.updateCurrentKeyShape(updatedShape)
+                                    projectViewModel.updateOriginalKeyShape(id: selectedId, shape: updatedShape)
+                                }
+                                // Clear generated frames to show single waveform view
+                                projectViewModel.project.generatedFrames = []
+                                projectViewModel.project.frameCount = 0
+                            } else if newFrames.count > 1 {
+                                // Multi-frame - populate wavetable (enables 3D view)
+                                projectViewModel.project.generatedFrames = newFrames
+                                projectViewModel.project.frameCount = newFrames.count
+                                // The @Published property will trigger view updates automatically
                             }
                         }
                     ),
