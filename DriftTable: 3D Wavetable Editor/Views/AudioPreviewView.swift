@@ -13,6 +13,8 @@ struct AudioPreviewView: View {
     @State private var holdNote = false
     @State private var droneNote: Int = 60 // C4
     @State private var isDronePlaying = false
+    @State private var showPositionPopover = false
+    @State private var showVolumePopover = false
     
     var body: some View {
         VStack(spacing: 12) {
@@ -82,11 +84,33 @@ struct AudioPreviewView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .frame(width: 32, alignment: .leading)
-                    Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
-                    Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .frame(width: 35, alignment: .trailing)
+                    
+                    Button {
+                        showPositionPopover = true
+                    } label: {
+                        HStack {
+                            Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
+                                .font(.caption)
+                            Spacer()
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 8)
+                        .frame(height: 30)
+                    }
+                    .buttonStyle(.bordered)
+                    .popover(isPresented: $showPositionPopover, arrowEdge: .bottom) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Wavetable Position")
+                                .font(.headline)
+                            Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
+                            Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .frame(minWidth: 220)
+                    }
                 }
                 
                 // Volume
@@ -95,14 +119,36 @@ struct AudioPreviewView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .frame(width: 32, alignment: .leading)
-                    Slider(value: Binding(
-                        get: { Double(audioEngine.volume) },
-                        set: { audioEngine.setVolume(Float($0)) }
-                    ), in: 0.0...1.0)
-                    Text(String(format: "%.0f%%", audioEngine.volume * 100))
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .frame(width: 35, alignment: .trailing)
+                    
+                    Button {
+                        showVolumePopover = true
+                    } label: {
+                        HStack {
+                            Text(String(format: "%.0f%%", audioEngine.volume * 100))
+                                .font(.caption)
+                            Spacer()
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 8)
+                        .frame(height: 30)
+                    }
+                    .buttonStyle(.bordered)
+                    .popover(isPresented: $showVolumePopover, arrowEdge: .bottom) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Volume")
+                                .font(.headline)
+                            Slider(value: Binding(
+                                get: { Double(audioEngine.volume) },
+                                set: { audioEngine.setVolume(Float($0)) }
+                            ), in: 0.0...1.0)
+                            Text(String(format: "%.0f%%", audioEngine.volume * 100))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .frame(minWidth: 220)
+                    }
                 }
             }
             
@@ -146,4 +192,3 @@ struct AudioPreviewView: View {
         return "\(noteNames[noteIndex])\(octave)"
     }
 }
-

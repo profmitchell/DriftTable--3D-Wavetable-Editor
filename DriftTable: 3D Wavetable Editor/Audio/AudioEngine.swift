@@ -34,6 +34,10 @@ class AudioEngine: ObservableObject {
     private var frequency: Float = 440.0 // A4
     private var isNoteHeld = false
     
+    private var smoothedVolume: Float = 0.7
+    private var smoothedWavetablePosition: Float = 0.5
+    private let parameterSmoothingFactor: Float = 0.01
+    
     init() {
         setupAudioEngine()
     }
@@ -71,19 +75,24 @@ class AudioEngine: ObservableObject {
     }
     
     func updateWavetable(frames: [[Float]], sampleRate: Double, samplesPerFrame: Int) {
-        self.currentFrames = frames
-        self.currentSingleCycle = [] // Clear single cycle when wavetable is set
         self.sampleRate = sampleRate
         self.samplesPerFrame = samplesPerFrame
+        self.smoothedWavetablePosition = wavetablePosition
+        
+        guard !frames.isEmpty else {
+            currentFrames = []
+            if currentSingleCycle.isEmpty {
+                stop()
+            }
+            return
+        }
+        
+        self.currentFrames = frames
+        self.currentSingleCycle = [] // Clear single cycle when wavetable is set
         
         // Update render format if sample rate changed
         if let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1) {
             renderFormat = format
-        }
-        
-        if isPlaying {
-            stop()
-            play()
         }
     }
     
@@ -93,10 +102,11 @@ class AudioEngine: ObservableObject {
             return
         }
         
-        self.currentSingleCycle = samples
-        self.currentFrames = [] // Clear wavetable when single cycle is set
         self.sampleRate = sampleRate
         self.samplesPerFrame = samples.count
+        self.currentSingleCycle = samples
+        self.currentFrames = [] // Clear wavetable when single cycle is set
+        self.smoothedWavetablePosition = wavetablePosition
         
         print("updateSingleCycle: Set \(samples.count) samples at \(sampleRate) Hz")
         
@@ -105,9 +115,8 @@ class AudioEngine: ObservableObject {
             renderFormat = format
         }
         
-        if isPlaying {
+        if currentSingleCycle.isEmpty && currentFrames.isEmpty {
             stop()
-            play()
         }
     }
     
@@ -145,20 +154,21 @@ class AudioEngine: ObservableObject {
             }
         }
         
-        stop()
-        phase = 0.0
+        guard !isPlaying else {
+            print("play() called but already playing")
+            return
+        }
         
-        // Reset player node state
+        playerNode.stop()
         playerNode.reset()
         
-        // Set playing flag BEFORE scheduling buffers
+        phase = 0.0
+        smoothedVolume = volume
+        smoothedWavetablePosition = wavetablePosition
         isPlaying = true
         
-        // Start playing BEFORE scheduling buffers
-        playerNode.play()
-        
         // Use render callback for continuous audio generation
-        // This must happen after isPlaying is true and playerNode.play() is called
+        playerNode.play()
         setupRenderCallback()
         
         print("Playing audio - frames: \(currentFrames.count), single cycle: \(currentSingleCycle.count), frequency: \(frequency) Hz, volume: \(volume)")
@@ -277,8 +287,9 @@ class AudioEngine: ObservableObject {
                 finalValue = sample0 + (sample1 - sample0) * sampleT
             } else {
                 // Wavetable playback
-                // Select frame based on wavetable position
-                let frameIndex = wavetablePosition * Float(currentFrames.count - 1)
+                smoothedWavetablePosition += (wavetablePosition - smoothedWavetablePosition) * parameterSmoothingFactor
+                let position = max(0.0, min(smoothedWavetablePosition, 1.0))
+                let frameIndex = position * Float(currentFrames.count - 1)
                 let frameIndex0 = Int(floor(frameIndex))
                 let frameIndex1 = min(frameIndex0 + 1, currentFrames.count - 1)
                 let frameT = frameIndex - Float(frameIndex0)
@@ -301,7 +312,8 @@ class AudioEngine: ObservableObject {
                 finalValue = value0 + (value1 - value0) * frameT
             }
             
-            let outputValue = finalValue * volume
+            smoothedVolume += (volume - smoothedVolume) * parameterSmoothingFactor
+            let outputValue = finalValue * smoothedVolume
             channelPointer[i] = outputValue
             
             maxSample = max(maxSample, abs(outputValue))
