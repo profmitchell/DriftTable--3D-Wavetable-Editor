@@ -32,7 +32,7 @@
 
 [x][---SINGLES: FOLD (VARIOUS TYPES)---]
 
-[x][---SINGLES: FOLD – GENTLE---]
+[x][---SINGLES: FOLD - GENTLE---]
 [abs((x*3)%2-1)*0.7+0.3*sin(x*pi)][Soft Triangle Fold]
 [asin(sin(x*pi*4)*0.9)/pi*0.8+0.2*sin(x*pi*0.5)][Mild Arc Fold]
 [tanh(sin(x*pi*3)*2)*0.75+0.25*sin(x*pi)][Warm Tanh Fold]
@@ -44,7 +44,7 @@
 
 
 
-[x][---SINGLES: FOLD – MEDIUM---]
+[x][---SINGLES: FOLD - MEDIUM---]
 [abs((x*6+sin(x*pi*0.5)*0.5)%2-1)][Classic Wave Fold]
 [sin(x*pi*5)-sign(sin(x*pi*5))*0.6][Soft Clip Fold]
 [2*abs(sin(x*pi*3.5))-1][Sine Triangle Fold]
@@ -56,7 +56,7 @@
 
 
 
-[x][---SINGLES: FOLD – AGGRESSIVE---]
+[x][---SINGLES: FOLD - AGGRESSIVE---]
 [abs((x*12+sin(x*pi)*sin(x*pi*3))%2-1)][Complex High Fold]
 [asin(sin(x*pi*8))/pi][Hard Arc Fold]
 [tanh(sin(x*pi*6)*5)][Extreme Tanh Fold]
@@ -69,7 +69,7 @@
 
 
 
-[x][---SINGLES: FOLD – SPECIAL CHARACTER---]
+[x][---SINGLES: FOLD - SPECIAL CHARACTER---]
 
 [sin(x*pi*(4+2*sin(x*pi*0.25)))*0.8+0.2*sin(x*pi*0.5)][Slow FM Fold]
 [abs(sin(x*pi*2+sin(x*pi)*3)^1.3)*sign(sin(x*pi*2))][Power Curve Fold]

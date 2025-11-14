@@ -253,6 +253,12 @@ struct MainWindowView: View {
         }
         .navigationTitle("DriftTable")
         .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(action: performUndo) {
+                    Label("Undo", systemImage: "arrow.uturn.backward")
+                }
+                .disabled(!projectViewModel.canUndo)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button(action: { newProject() }) {
@@ -330,6 +336,12 @@ struct MainWindowView: View {
     
     private func toggleInspector() {
         showInspector.toggle()
+    }
+    
+    private func performUndo() {
+        guard projectViewModel.canUndo else { return }
+        projectViewModel.undo()
+        updateAudioEngine(frames: projectViewModel.project.generatedFrames)
     }
     
     private var formulaFrameSelectionBinding: Binding<Int> {

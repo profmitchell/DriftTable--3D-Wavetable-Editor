@@ -1,5 +1,5 @@
 [x][ ]
-[x][—SYMMETRICAL ABS(Z) MORPHS—]
+[x][-SYMMETRICAL ABS(Z) MORPHS-]
 [(1-abs(z))*(sin(x*pi)*0.75+0.2*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2)*0.8))+abs(z)*((sin(x*pi*0.995)+sin(x*pi)+sin(x*pi*1.005))*0.5+0.3*tanh(sin(x*pi*3)*1.8)+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*5))][Warm Stack to Wide Chorus]
 
 [(1-abs(z))*(sin(x*pi)*0.7+0.25*sin(x*pi*0.25)+0.05*sin(x*pi*1.5))+abs(z)*((sin(x*pi*0.997)+sin(x*pi)+sin(x*pi*1.003))*0.6+0.25*tanh(sin(x*pi*2)*2)+0.1*sin(x*pi*0.5)+0.05*sin(x*pi*7))][Deep Sub to Thick Unison]
@@ -10,7 +10,7 @@
 
 [(1-abs(z))*(sin(x*pi)*0.8+0.15*sin(x*pi*0.33)+0.05*sin(x*pi*2))+abs(z)*((sin(x*pi*0.993)+sin(x*pi)+sin(x*pi*1.007))*0.6+0.2*tanh(sin(x*pi*2.5)*1.8)+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*8))][Subharmonic to Wide Detune]
 [x][ ]
-[x][—PROGRESSIVE Z AND Z² BUILDS—]
+[x][-PROGRESSIVE Z AND Z^2 BUILDS-]
 [tanh(sin(x*pi)*0.9)+0.08*sin(x*pi*1.5)+0.02*sin(x*pi*3)+z*(sin(x*pi*0.995)+sin(x*pi*1.005))*0.4+z*z*(x*0.4+0.3*tanh(sin(x*pi*2)*1.8)+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*5))][Warm Tube to Chorus to Saw Hybrid]
 
 [sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2))+z*(sin(x*pi*0.997)+sin(x*pi*1.003))*0.45+z*z*(x*0.3+0.25*tanh(sin(x*pi*3)*2)+0.25*sin(x*pi*0.25)+0.15*sin(x*pi*6)+0.05*sin(x*pi*9))][Classic to Detune to Complex]
@@ -23,7 +23,7 @@
 
 
 [x][ ]
-[x][—MIXED MORPHING STYLES—]
+[x][-MIXED MORPHING STYLES-]
 [(1-abs(z))*(tanh(sin(x*pi)*0.88)+0.1*sin(x*pi*0.5)+0.02*sin(x*pi*1.5))+abs(z)*((sin(x*pi*0.996)+sin(x*pi)+sin(x*pi*1.004))*0.5+0.3*tanh(sin(x*pi*2)*1.2)+0.15*sin(x*pi*0.25)+0.05*x)][Vintage to Modern Chorus]
 
 [sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*0.6)+z*(sin(x*pi*0.993)+sin(x*pi*1.007))*0.5+z*z*((abs(x*2)-1)*0.3+0.3*sin(x*pi*0.5)+0.2*tanh(sin(x*pi*3)*1.5)+0.15*sin(x*pi*5)+0.05*sin(x*pi*7))][Full to Detune to Triangle Mix]
@@ -34,7 +34,7 @@
 
 
 [x][ ]
-[x][—EXTRA SMOOTH VARIATIONS—]
+[x][-EXTRA SMOOTH VARIATIONS-]
 [(1-abs(z))*(sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*2))+abs(z)*((sin(x*pi*0.995)+sin(x*pi*0.99)+sin(x*pi)+sin(x*pi*1.005)+sin(x*pi*1.01))*0.4+0.2*tanh(sin(x*pi*2)*1.3)+0.1*sin(x*pi*0.5))][Warm to 5-Voice Chorus]
 
 [tanh(sin(x*pi)*0.87)+0.1*sin(x*pi*1.5)+0.03*sin(x*pi*3)+z*(sin(x*pi*0.9975)+sin(x*pi*1.0025))*0.45+z*z*(x*0.4+0.25*tanh(sin(x*pi*2.5)*1.8)+0.2*sin(x*pi*0.4)+0.1*sin(x*pi*5)+0.05*sin(x*pi*8))][Clean to Micro to Full]
@@ -48,29 +48,29 @@
 
 
 [x][ ]
-[x][—WARM COLORED SINES → CREATIVE FOLDS—]
-[x][—VELVET SINE TO SOFT WAVE WRAP—]
+[x][-WARM COLORED SINES -> CREATIVE FOLDS-]
+[x][-VELVET SINE TO SOFT WAVE WRAP-]
 [sin(x*pi)*0.6+0.25*sin(x*pi*0.5)+0.1*sin(x*pi*2)+0.05*tanh(sin(x*pi*3)*0.5)+z*0.5*(abs((x*3.5+sin(x*pi*0.5)*0.3)%2-1)-sin(x*pi)*0.6)+z*0.3*sin(x*pi*0.25)+z*0.2*tanh(sin(x*pi*4)*1.2)][Velvet to Gentle Wrap]
 
 [tanh(sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*1.5))+z*0.5*(2*abs(sin(x*pi*2.5+sin(x*pi*0.25)*0.5))-1)+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*3)*0.8)][Tube Blend to Sine Fold]
 
 [sin(x*pi)*0.5+0.3*sin(x*pi*0.25)+0.15*sin(x*pi*1.5)+0.05*tanh(sin(x*pi*2)*0.4)+z*0.5*(tanh(sin(x*pi*3)*1.8+sin(x*pi*0.5)*0.5))+z*0.3*sin(x*pi*0.5)+z*0.2*sin(x*pi*7)][Deep Amber to Tanh Curve]
 
-[x][—CHORUSED WARMTH TO ORGANIC FOLDS—]
+[x][-CHORUSED WARMTH TO ORGANIC FOLDS-]
 [sin(x*pi*0.995)*0.33+sin(x*pi)*0.34+sin(x*pi*1.005)*0.33+0.1*sin(x*pi*0.5)+z*0.5*(abs((sin(x*pi)*2+x*4+sin(x*pi*0.5)*0.3)%2-1))+z*0.3*tanh(sin(x*pi*2)*0.7)+z*0.2*sin(x*pi*0.25)][Chorus to Living Fold]
 
 [(sin(x*pi)+sin(x*pi*0.997)+sin(x*pi*1.003))*0.3+0.1*sin(x*pi*0.5)+z*0.5*(sin(x*pi*(2+sin(x*pi*0.1)*0.5))*0.8)+z*0.3*tanh(sin(x*pi*3)*1.2)+z*0.2*sin(x*pi*0.5)][Triple Silk to FM Fold]
 
 [sin(x*pi)*0.6+sin(x*pi*0.996)*0.2+sin(x*pi*1.004)*0.2+z*0.5*(abs(sin(x*pi*3+sin(x*pi*0.5)*1.5)^1.2)*sign(sin(x*pi*3)))+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*5)*0.8)][Subtle Movement to Power Fold]
 
-[x][—SUBHARMONIC COLOR TO TRIANGLE VARIATIONS—]
+[x][-SUBHARMONIC COLOR TO TRIANGLE VARIATIONS-]
 [sin(x*pi)*0.55+0.25*sin(x*pi*0.33)+0.15*sin(x*pi*2)+0.05*tanh(sin(x*pi*3)*0.4)+z*0.5*(2*abs((x*2.5+sin(x*pi*0.33)*0.4)%1)-1)+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*4)*0.9)][Sub Color to Tri Morph]
 
 [sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*sin(x*pi*0.25)+z*0.5*((abs(x*4)%1-0.5)*2*0.8+0.2*sin(x*pi*0.5))+z*0.3*tanh(sin(x*pi*2)*0.8)+z*0.2*sin(x*pi*5)][Deep Stack to Clean Triangle]
 
 [sin(x*pi)*0.5+0.3*sin(x*pi*0.25)+0.2*tanh(sin(x*pi*1.5)*0.5)+z*0.5*(abs((x*3+sin(x*pi)*0.5+sin(x*pi*0.5)*0.3)%2-1))+z*0.3*sin(x*pi*0.5)][Ultra Deep to Complex Tri]
 
-[x][—GOLDEN RATIO WARMTH TO ARC FOLDS—]
+[x][-GOLDEN RATIO WARMTH TO ARC FOLDS-]
 
 [sin(x*pi)*0.5+0.3*sin(x*pi*1.618)+0.15*sin(x*pi*2.618)+0.05*tanh(sin(x*pi*3)*0.4)+z*0.5*(asin(sin(x*pi*4)*0.85)/pi)+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*7)*0.8)][Golden to Arc Sine]
 
@@ -79,7 +79,7 @@
 [sin(x*pi)*0.65+0.2*sin(x*pi*e/2)+0.1*sin(x*pi*pi/2)+0.05*tanh(sin(x*pi*3)*0.3)+z*0.5*(sin(atan(tan(x*pi*2.5))*1.5))+z*0.3*sin(x*pi*0.5)][Math Constants to Tan Fold]
 
 [x][ ]
-[x][—VINTAGE WARMTH TO SOFT SYNC FOLDS—]
+[x][-VINTAGE WARMTH TO SOFT SYNC FOLDS-]
 [tanh(sin(x*pi)*0.85+0.1*sin(x*pi*0.5)+0.05*sin(x*pi*1.5))*0.9+z*0.5*((x*5+sin(x*pi*0.5)*0.2)%(1.5+sin(x*pi*0.1)*0.3)*0.8)+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*3)*0.7)][Vintage to Variable Sync]
 
 [sin(x*pi)*0.6+0.2*tanh(sin(x*pi*0.5)*0.6)+0.15*sin(x*pi*1.5)+0.05*sin(x*pi*2.5)+z*0.5*((sin(x*pi)*3+x*6)%(2)*0.5)+z*0.3*tanh(sin(x*pi*2)*0.8)+z*0.2*sin(x*pi*0.5)][Old Warmth to Sync Blend]
@@ -87,7 +87,7 @@
 [(sin(x*pi)+0.1*sin(x*pi*0.5))*0.8+0.2*tanh(sin(x*pi)*0.5)+z*0.5*((x*7)%(1.2+sin(x*pi)*0.2)*1.5-0.75)+z*0.3*sin(x*pi*0.5)][Gentle Drive to Modulated Sync]
 
 [x][ ]
-[x][—ORGANIC TEXTURE TO BREATHING FOLDS—]
+[x][-ORGANIC TEXTURE TO BREATHING FOLDS-]
 [sin(x*pi)*0.6+0.25*sin(x*pi*(1+0.002*sin(x*8)))+0.15*sin(x*pi*0.5)+z*0.5*(abs((x*4+sin(x*0.5)*0.3)%2-1)*0.8)+z*0.3*tanh(sin(x*pi*2)*0.6)+z*0.2*sin(x*pi*0.25)][Micro Mod to Breathing Fold]
 
 [sin(x*pi)*0.7+0.2*sin(x*pi*0.5)*cos(x*pi*0.01)+0.1*tanh(sin(x*pi*2)*0.5)+z*0.5*(2*abs(sin(x*pi*3+sin(x*0.3)*0.5))-1)+z*0.3*sin(x*pi*0.5)][Gentle Phase to Slow Fold]
@@ -95,7 +95,7 @@
 [sin(x*pi)*0.6+0.2*sin(x*pi*0.5)*(1+0.1*sin(x*0.5))+0.15*sin(x*pi*2)+0.05*tanh(sin(x*pi*3)*0.3)+z*0.5*(tanh((x+0.1*sin(x*pi*0.1))*4))+z*0.3*sin(x*pi*0.5)][Slow Mod to Offset Fold]
 
 [x][ ]
-[x][—BELL-LIKE WARMTH TO MUSICAL FOLDS—]
+[x][-BELL-LIKE WARMTH TO MUSICAL FOLDS-]
 [sin(x*pi)*0.5+0.2*sin(x*pi*1.5)+0.15*sin(x*pi*2.5)+0.1*sin(x*pi*3)+0.05*tanh(sin(x*pi*4)*0.3)+z*0.5*(sin(x*pi*3)*sin(x*pi*5)*0.8)+z*0.3*sin(x*pi*0.5)+z*0.2*tanh(sin(x*pi*7)*0.6)][Pastel to Ring Fold]
 
 [sin(x*pi)*0.6+0.2*tanh(sin(x*pi*2)*0.7)+0.1*sin(x*pi*3)+0.08*sin(x*pi*0.5)+0.02*sin(x*pi*4)+z*0.5*(abs(sin(x*pi*2.5)^0.7)*sign(sin(x*pi*2.5)))+z*0.3*sin(x*pi*0.5)][Soft Complex to Shaped Fold]
@@ -104,7 +104,7 @@
 
 
 [x][ ]
-[x][---MORPHS: FAT WARM ANALOG → VARIOUS FOLDS (SMOOTH)---]
+[x][---MORPHS: FAT WARM ANALOG -> VARIOUS FOLDS (SMOOTH)---]
 [x][ ]
 [x][---MORPHS: CLASSIC WAVE FOLDS---]
 [sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2))*(1-z*0.8)+z*(abs((x*4)%2-1)*0.7+0.3*sin(x*pi))][Warm to Gentle Fold]
@@ -312,7 +312,7 @@
 
 
 
-[x][---SMOOTH PROGRESSIVE MORPHS (Z: 0 → 1)---]
+[x][---SMOOTH PROGRESSIVE MORPHS (Z: 0 -> 1)---]
 [tanh(sin(x*pi)*1.0+0.1*sin(x*pi*0.5)+0.05*sin(x*pi*2))*(1-z*0.3)+z*0.3*tanh(sin(x*pi)*1.2+0.15*sin(x*pi*2)+0.1*sin(x*pi*3))+z*z*0.4*(x*0.8+0.15*tanh(sin(x*pi*0.5)*2)+0.05*sin(x*pi*4))][Tube Morph to Saw Sub]
 [sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*2)*(1-z*0.5)+z*0.15*sin(x*pi*3)+z*0.1*sin(x*pi*4)+z*z*0.2*tanh(sin(x*pi*5)*1.5)+z*z*0.3*sign(x)+z*z*0.15*sin(x*pi*0.5)][Smooth Build to Square]
 [(1-z)*(sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)))+z*(1-z)*0.5*(sin(x*pi)*0.5+0.3*sin(x*pi*2)+0.2*sin(x*pi*3))+z*z*0.8*(abs(x*2)-1+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*3)*1.8))][Sub Stack to Triangle Mix]
@@ -344,28 +344,28 @@
 
 
 
-[x][---BIDIRECTIONAL SMOOTH MACRO MORPHS (Z: -1 → 1)---]
+[x][---BIDIRECTIONAL SMOOTH MACRO MORPHS (Z: -1 -> 1)---]
 
-[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)))+(-z)*(x*0.6+0.3*sin(x*pi*2)+0.2*tanh(sin(x*pi*3)*1.5)+0.1*sin(x*pi*0.5))):(z*(sign(sin(x*pi*8))*0.4+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2)+0.1*x)+(1-z)*(x*0.6+0.3*sin(x*pi*2)+0.2*tanh(sin(x*pi*3)*1.5)+0.1*sin(x*pi*0.5)))][Warm Sine → Saw Stack → Pulse Sub Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi)*1.1+0.1*sin(x*pi*0.5)))+(-z)*((abs(x*2)-1)*0.6+0.3*sin(x*pi*2)+0.1*tanh(sin(x*pi*4)*1.8))):(z*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*3)+0.05*x)+(1-z)*((abs(x*2)-1)*0.6+0.3*sin(x*pi*2)+0.1*tanh(sin(x*pi*4)*1.8)))][Tube → Triangle Plus → Square Stack Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*((rint(x*8)/4-1)*0.5+0.3*sin(x*pi*0.5)+0.2*tanh(sin(x*pi*2)*1.5))):(z*(x*(1+0.2*sin(x*pi*4))+0.25*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*2))+(1-z)*((rint(x*8)/4-1)*0.5+0.3*sin(x*pi*0.5)+0.2*tanh(sin(x*pi*2)*1.5)))][Deep Stack → Stepped Sub → AM Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi*0.5)*0.5+sin(x*pi)*0.4+0.1*tanh(sin(x*pi*1.5)))+(-z)*(tanh(x*3)*0.6+0.3*sin(x*pi*2)+0.1*sin(x*pi*0.5))):(z*((x*16)%(2)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*sign(x))+(1-z)*(tanh(x*3)*0.6+0.3*sin(x*pi*2)+0.1*sin(x*pi*0.5)))][Sub Mix → Folded → Sync Bass Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi)*0.9+0.08*sin(x*pi*0.5)+0.02*sin(x*pi*0.25)))+(-z)*(sin(x*pi*pi)*0.4+sin(x*pi*e)*0.3+sin(x*pi)*0.3)):(z*(abs(sin(x*pi)^1.8)*sign(x)+0.3*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*4)*2))+(1-z)*(sin(x*pi*pi)*0.4+sin(x*pi*e)*0.3+sin(x*pi)*0.3))][Deep Tube → Irrational → Power Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*(sign(sin(x*pi*4))*0.5+0.3*sin(x*pi*2)+0.2*sin(x*pi*0.5))):(z*(x+0.3*tanh(sin(x*pi*0.5)*3)+0.15*sin(x*pi*3)+0.05*sign(sin(x*pi*7)))+(1-z)*(sign(sin(x*pi*4))*0.5+0.3*sin(x*pi*2)+0.2*sin(x*pi*0.5)))][Full Stack → Fast Pulse → Driven Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.5+0.35*sin(x*pi*0.25)+0.15*tanh(sin(x*pi*2)))+(-z)*(abs(x*3)%1-0.5+0.4*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*1.5))):(z*((sin(x*pi)+sin(x*pi*0.98)+sin(x*pi*1.02))*0.4+x*0.3+0.2*sin(x*pi*0.5))+(1-z)*(abs(x*3)%1-0.5+0.4*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*1.5)))][Ultra Deep → Folded Sub → Unison Saw Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi*0.5)*0.6+sin(x*pi)*0.4))+(-z)*(sin(x*pi*2)*sin(x*pi*0.5)+0.4*sin(x*pi)+0.2*tanh(sin(x*pi*3)*1.5))):(z*(sign(x-0.4)*0.5+0.3*x+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2)*2))+(1-z)*(sin(x*pi*2)*sin(x*pi*0.5)+0.4*sin(x*pi)+0.2*tanh(sin(x*pi*3)*1.5)))][Sub Blend → Ring Mod → PWM Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*1.5)*0.8))+(-z)*(tanh(sin(x*pi*rint(3))*1.8)+0.3*sin(x*pi*0.5)+0.2*x)):(z*(sign(sin(x*pi*16))*0.4+0.3*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*2))+(1-z)*(tanh(sin(x*pi*rint(3))*1.8)+0.3*sin(x*pi*0.5)+0.2*x))][Warm Odd → Stepped → Fast Pulse Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*((abs(x*2)-1)*0.5+0.3*tanh(sin(x*pi*2)*1.5)+0.2*sin(x*pi*0.5))):(z*(x*(1+0.15*sin(x*32))+0.25*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*2)+0.1*sin(x*pi*3))+(1-z)*((abs(x*2)-1)*0.5+0.3*tanh(sin(x*pi*2)*1.5)+0.2*sin(x*pi*0.5)))][Deep Stack → Tri Drive → FM Saw Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi)*1.05+0.1*sin(x*pi*0.5)+0.05*sin(x*pi*0.25)))+(-z)*(x*0.5+0.3*sin(x*pi*2)+0.15*tanh(sin(x*pi*3)*1.8)+0.05*sin(x*pi*0.5))):(z*((x*64)%(3)*0.4+0.3*sign(x)+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*4)*2))+(1-z)*(x*0.5+0.3*sin(x*pi*2)+0.15*tanh(sin(x*pi*3)*1.8)+0.05*sin(x*pi*0.5)))][Deep Tube → Saw Plus → Sync Square Smooth]
-[(z<0)?((1+z)*(sin(x*pi*0.5)*0.4+sin(x*pi)*0.5+0.1*tanh(sin(x*pi*2)))+(-z)*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*3))):(z*(tanh(x*4)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*x)+(1-z)*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*3)))][Sub Mix → Square Sub → Folded Full Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.5)+0.1*sin(x*pi*1.5))+(-z)*((rint(x*6)/3-1)*0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.5))):(z*(abs(sin(x*pi*2)^2)*sign(x)+0.3*x+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*3))+(1-z)*((rint(x*6)/3-1)*0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.5)))][Full Odd → Stepped Sub → Power Saw Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*2)))+(-z)*(abs(x*4)%1-0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.8))):(z*(sign(sin(x*pi*12))*0.4+x*0.3+0.2*tanh(sin(x*pi*0.5)*2.5)+0.1*sin(x*pi*2))+(1-z)*(abs(x*4)%1-0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.8)))][Warm Full → Fold Drive → Fast Hybrid Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.5+0.4*sin(x*pi*0.25)+0.1*tanh(sin(x*pi*1.5)))+(-z)*(sin(x*pi)*sin(x*pi*3)+0.4*sin(x*pi*0.5)+0.2*x)):(z*((sin(x*pi*0.99)+sin(x*pi)+sin(x*pi*1.01))*0.4+x*0.4+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*3)*2))+(1-z)*(sin(x*pi)*sin(x*pi*3)+0.4*sin(x*pi*0.5)+0.2*x))][Ultra Deep → Ring Sub → Unison Full Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*(tanh(sin(x*pi)*2)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2))):(z*(x+0.3*sign(sin(x*pi*6))+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2)*1.5))+(1-z)*(tanh(sin(x*pi)*2)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2)))][Full Stack → Driven → Saw Pulse Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi*0.5)+0.3*sin(x*pi)+0.1*sin(x*pi*1.5)))+(-z)*(x*0.6+0.3*tanh(sin(x*pi*2)*1.5)+0.1*sin(x*pi*0.5))):(z*((x*32)%(2+z*0.5)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*sign(x))+(1-z)*(x*0.6+0.3*tanh(sin(x*pi*2)*1.5)+0.1*sin(x*pi*0.5)))][Odd Mix → Saw Drive → Sync Sub Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.6+0.25*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*0.8))+(-z)*(sign(sin(x*pi*2))*0.5+0.35*sin(x*pi*0.5)+0.15*sin(x*pi*3))):(z*(tanh(x*3)*0.5+0.25*x+0.2*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*4)*2))+(1-z)*(sign(sin(x*pi*2))*0.5+0.35*sin(x*pi*0.5)+0.15*sin(x*pi*3)))][Deep Warm → Slow Pulse → Fold Saw Smooth]
-[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.25)+0.1*sin(x*pi*2))+(-z)*((abs(x*2)-1+0.1*sign(x))*0.6+0.3*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*1.5))):(z*(atan(sin(x*pi)*5)/pi+0.4*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*2))+(1-z)*((abs(x*2)-1+0.1*sign(x))*0.6+0.3*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*1.5)))][Ultra Stack → Tri Square → Arc Saw Smooth]
-[(z<0)?((1+z)*(tanh(sin(x*pi)*1.0+0.1*sin(x*pi*0.5)))+(-z)*(sin(x*pi*1.618)*0.4+sin(x*pi*2.718)*0.3+sin(x*pi)*0.3)):(z*(sign(x-0.2)*0.5+0.3*x+0.15*tanh(sin(x*pi*0.5)*2)+0.05*sin(x*pi*3))+(1-z)*(sin(x*pi*1.618)*0.4+sin(x*pi*2.718)*0.3+sin(x*pi)*0.3))][Tube → Golden → PWM Full Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)))+(-z)*(x*0.6+0.3*sin(x*pi*2)+0.2*tanh(sin(x*pi*3)*1.5)+0.1*sin(x*pi*0.5))):(z*(sign(sin(x*pi*8))*0.4+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2)+0.1*x)+(1-z)*(x*0.6+0.3*sin(x*pi*2)+0.2*tanh(sin(x*pi*3)*1.5)+0.1*sin(x*pi*0.5)))][Warm Sine -> Saw Stack -> Pulse Sub Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi)*1.1+0.1*sin(x*pi*0.5)))+(-z)*((abs(x*2)-1)*0.6+0.3*sin(x*pi*2)+0.1*tanh(sin(x*pi*4)*1.8))):(z*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*3)+0.05*x)+(1-z)*((abs(x*2)-1)*0.6+0.3*sin(x*pi*2)+0.1*tanh(sin(x*pi*4)*1.8)))][Tube -> Triangle Plus -> Square Stack Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*((rint(x*8)/4-1)*0.5+0.3*sin(x*pi*0.5)+0.2*tanh(sin(x*pi*2)*1.5))):(z*(x*(1+0.2*sin(x*pi*4))+0.25*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*2))+(1-z)*((rint(x*8)/4-1)*0.5+0.3*sin(x*pi*0.5)+0.2*tanh(sin(x*pi*2)*1.5)))][Deep Stack -> Stepped Sub -> AM Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi*0.5)*0.5+sin(x*pi)*0.4+0.1*tanh(sin(x*pi*1.5)))+(-z)*(tanh(x*3)*0.6+0.3*sin(x*pi*2)+0.1*sin(x*pi*0.5))):(z*((x*16)%(2)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*sign(x))+(1-z)*(tanh(x*3)*0.6+0.3*sin(x*pi*2)+0.1*sin(x*pi*0.5)))][Sub Mix -> Folded -> Sync Bass Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi)*0.9+0.08*sin(x*pi*0.5)+0.02*sin(x*pi*0.25)))+(-z)*(sin(x*pi*pi)*0.4+sin(x*pi*e)*0.3+sin(x*pi)*0.3)):(z*(abs(sin(x*pi)^1.8)*sign(x)+0.3*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*4)*2))+(1-z)*(sin(x*pi*pi)*0.4+sin(x*pi*e)*0.3+sin(x*pi)*0.3))][Deep Tube -> Irrational -> Power Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*(sign(sin(x*pi*4))*0.5+0.3*sin(x*pi*2)+0.2*sin(x*pi*0.5))):(z*(x+0.3*tanh(sin(x*pi*0.5)*3)+0.15*sin(x*pi*3)+0.05*sign(sin(x*pi*7)))+(1-z)*(sign(sin(x*pi*4))*0.5+0.3*sin(x*pi*2)+0.2*sin(x*pi*0.5)))][Full Stack -> Fast Pulse -> Driven Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.5+0.35*sin(x*pi*0.25)+0.15*tanh(sin(x*pi*2)))+(-z)*(abs(x*3)%1-0.5+0.4*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*1.5))):(z*((sin(x*pi)+sin(x*pi*0.98)+sin(x*pi*1.02))*0.4+x*0.3+0.2*sin(x*pi*0.5))+(1-z)*(abs(x*3)%1-0.5+0.4*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*1.5)))][Ultra Deep -> Folded Sub -> Unison Saw Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi*0.5)*0.6+sin(x*pi)*0.4))+(-z)*(sin(x*pi*2)*sin(x*pi*0.5)+0.4*sin(x*pi)+0.2*tanh(sin(x*pi*3)*1.5))):(z*(sign(x-0.4)*0.5+0.3*x+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2)*2))+(1-z)*(sin(x*pi*2)*sin(x*pi*0.5)+0.4*sin(x*pi)+0.2*tanh(sin(x*pi*3)*1.5)))][Sub Blend -> Ring Mod -> PWM Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*1.5)*0.8))+(-z)*(tanh(sin(x*pi*rint(3))*1.8)+0.3*sin(x*pi*0.5)+0.2*x)):(z*(sign(sin(x*pi*16))*0.4+0.3*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*2))+(1-z)*(tanh(sin(x*pi*rint(3))*1.8)+0.3*sin(x*pi*0.5)+0.2*x))][Warm Odd -> Stepped -> Fast Pulse Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.6+0.3*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*((abs(x*2)-1)*0.5+0.3*tanh(sin(x*pi*2)*1.5)+0.2*sin(x*pi*0.5))):(z*(x*(1+0.15*sin(x*32))+0.25*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*2)+0.1*sin(x*pi*3))+(1-z)*((abs(x*2)-1)*0.5+0.3*tanh(sin(x*pi*2)*1.5)+0.2*sin(x*pi*0.5)))][Deep Stack -> Tri Drive -> FM Saw Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi)*1.05+0.1*sin(x*pi*0.5)+0.05*sin(x*pi*0.25)))+(-z)*(x*0.5+0.3*sin(x*pi*2)+0.15*tanh(sin(x*pi*3)*1.8)+0.05*sin(x*pi*0.5))):(z*((x*64)%(3)*0.4+0.3*sign(x)+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*4)*2))+(1-z)*(x*0.5+0.3*sin(x*pi*2)+0.15*tanh(sin(x*pi*3)*1.8)+0.05*sin(x*pi*0.5)))][Deep Tube -> Saw Plus -> Sync Square Smooth]
+[(z<0)?((1+z)*(sin(x*pi*0.5)*0.4+sin(x*pi)*0.5+0.1*tanh(sin(x*pi*2)))+(-z)*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*3))):(z*(tanh(x*4)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*x)+(1-z)*(sign(x)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*3)))][Sub Mix -> Square Sub -> Folded Full Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.5)+0.1*sin(x*pi*1.5))+(-z)*((rint(x*6)/3-1)*0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.5))):(z*(abs(sin(x*pi*2)^2)*sign(x)+0.3*x+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*3))+(1-z)*((rint(x*6)/3-1)*0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.5)))][Full Odd -> Stepped Sub -> Power Saw Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi)*0.8+0.15*sin(x*pi*0.5)+0.05*sin(x*pi*2)))+(-z)*(abs(x*4)%1-0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.8))):(z*(sign(sin(x*pi*12))*0.4+x*0.3+0.2*tanh(sin(x*pi*0.5)*2.5)+0.1*sin(x*pi*2))+(1-z)*(abs(x*4)%1-0.5+0.35*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*1.8)))][Warm Full -> Fold Drive -> Fast Hybrid Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.5+0.4*sin(x*pi*0.25)+0.1*tanh(sin(x*pi*1.5)))+(-z)*(sin(x*pi)*sin(x*pi*3)+0.4*sin(x*pi*0.5)+0.2*x)):(z*((sin(x*pi*0.99)+sin(x*pi)+sin(x*pi*1.01))*0.4+x*0.4+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*3)*2))+(1-z)*(sin(x*pi)*sin(x*pi*3)+0.4*sin(x*pi*0.5)+0.2*x))][Ultra Deep -> Ring Sub -> Unison Full Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.7+0.2*sin(x*pi*0.5)+0.1*sin(x*pi*2))+(-z)*(tanh(sin(x*pi)*2)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2))):(z*(x+0.3*sign(sin(x*pi*6))+0.15*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*2)*1.5))+(1-z)*(tanh(sin(x*pi)*2)*0.5+0.3*sin(x*pi*0.5)+0.2*sin(x*pi*2)))][Full Stack -> Driven -> Saw Pulse Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi*0.5)+0.3*sin(x*pi)+0.1*sin(x*pi*1.5)))+(-z)*(x*0.6+0.3*tanh(sin(x*pi*2)*1.5)+0.1*sin(x*pi*0.5))):(z*((x*32)%(2+z*0.5)*0.5+0.3*sin(x*pi*0.5)+0.15*sin(x*pi*2)+0.05*sign(x))+(1-z)*(x*0.6+0.3*tanh(sin(x*pi*2)*1.5)+0.1*sin(x*pi*0.5)))][Odd Mix -> Saw Drive -> Sync Sub Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.6+0.25*sin(x*pi*0.5)+0.15*tanh(sin(x*pi*2)*0.8))+(-z)*(sign(sin(x*pi*2))*0.5+0.35*sin(x*pi*0.5)+0.15*sin(x*pi*3))):(z*(tanh(x*3)*0.5+0.25*x+0.2*sin(x*pi*0.5)+0.05*tanh(sin(x*pi*4)*2))+(1-z)*(sign(sin(x*pi*2))*0.5+0.35*sin(x*pi*0.5)+0.15*sin(x*pi*3)))][Deep Warm -> Slow Pulse -> Fold Saw Smooth]
+[(z<0)?((1+z)*(sin(x*pi)*0.65+0.25*sin(x*pi*0.25)+0.1*sin(x*pi*2))+(-z)*((abs(x*2)-1+0.1*sign(x))*0.6+0.3*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*1.5))):(z*(atan(sin(x*pi)*5)/pi+0.4*x+0.2*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*2)*2))+(1-z)*((abs(x*2)-1+0.1*sign(x))*0.6+0.3*sin(x*pi*0.5)+0.1*tanh(sin(x*pi*3)*1.5)))][Ultra Stack -> Tri Square -> Arc Saw Smooth]
+[(z<0)?((1+z)*(tanh(sin(x*pi)*1.0+0.1*sin(x*pi*0.5)))+(-z)*(sin(x*pi*1.618)*0.4+sin(x*pi*2.718)*0.3+sin(x*pi)*0.3)):(z*(sign(x-0.2)*0.5+0.3*x+0.15*tanh(sin(x*pi*0.5)*2)+0.05*sin(x*pi*3))+(1-z)*(sin(x*pi*1.618)*0.4+sin(x*pi*2.718)*0.3+sin(x*pi)*0.3))][Tube -> Golden -> PWM Full Smooth]
 
 
 

@@ -110,10 +110,49 @@ final class FormulaEngine {
         "e": Float(M_E)
     ]
     
+    private let scalarReplacements: [UnicodeScalar: String] = [
+        "\u{2018}": "'",
+        "\u{2019}": "'",
+        "\u{201A}": "'",
+        "\u{201B}": "'",
+        "\u{201C}": "\"",
+        "\u{201D}": "\"",
+        "\u{201E}": "\"",
+        "\u{201F}": "\"",
+        "\u{2010}": "-",
+        "\u{2011}": "-",
+        "\u{2012}": "-",
+        "\u{2013}": "-",
+        "\u{2014}": "-",
+        "\u{2212}": "-",
+        "\u{00B7}": "*",
+        "\u{22C5}": "*",
+        "\u{2219}": "*",
+        "\u{00D7}": "*",
+        "\u{2715}": "*",
+        "\u{00F7}": "/",
+        "\u{2044}": "/",
+        "\u{2215}": "/",
+        "\u{00A0}": " ",
+        "\u{03C0}": "pi",
+        "\u{213C}": "pi",
+        "\u{221A}": "sqrt",
+        "\u{2211}": "sum",
+        "\u{03A3}": "sum"
+    ]
+    
+    private let zeroWidthScalars: Set<UnicodeScalar> = [
+        "\u{200B}",
+        "\u{200C}",
+        "\u{200D}",
+        "\u{FEFF}"
+    ]
+    
     // MARK: - Public API
     
     func compile(_ source: String) throws -> CompiledExpression {
-        let tokens = try tokenize(source)
+        let normalized = normalizeSource(source)
+        let tokens = try tokenize(normalized)
         let ast = try parse(tokens)
         let (usesY, usesZ) = analyzeVariableUsage(ast)
         return CompiledExpression(ast: ast, usesY: usesY, usesZ: usesZ)
@@ -128,6 +167,23 @@ final class FormulaEngine {
     }
     
     // MARK: - Tokenization
+    
+    private func normalizeSource(_ source: String) -> String {
+        var normalized = ""
+        normalized.reserveCapacity(source.count)
+        
+        for scalar in source.unicodeScalars {
+            if zeroWidthScalars.contains(scalar) {
+                continue
+            }
+            if let replacement = scalarReplacements[scalar] {
+                normalized.append(replacement)
+                continue
+            }
+            normalized.append(String(scalar))
+        }
+        return normalized
+    }
     
     private func tokenize(_ source: String) throws -> [Token] {
         var tokens: [Token] = []
@@ -570,4 +626,3 @@ final class FormulaEngine {
         }
     }
 }
-
