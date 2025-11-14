@@ -35,12 +35,13 @@ struct MainWindowView: View {
     
     enum SidebarItem: String, Identifiable {
         case keyShapes = "Key Shapes"
-        case morphSettings = "Morph Settings"
         
         var id: String { rawValue }
     }
     
     var body: some View {
+        let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+        
         NavigationSplitView(
             columnVisibility: $sidebarVisibility,
             sidebar: {
@@ -48,9 +49,11 @@ struct MainWindowView: View {
             },
             content: {
                 mainContentView
-                    .inspector(isPresented: $showInspector) {
-                        inspectorView
-                            .inspectorColumnWidth(min: 280, ideal: 320, max: 400)
+                    .inspector(isPresented: isPhone ? .constant(false) : $showInspector) {
+                        if !isPhone {
+                            inspectorView
+                                .inspectorColumnWidth(min: 280, ideal: 320, max: 400)
+                        }
                     }
             },
             detail: {
@@ -167,9 +170,6 @@ struct MainWindowView: View {
                 NavigationLink(value: SidebarItem.keyShapes) {
                     Label("Key Shapes", systemImage: "waveform.path")
                 }
-                NavigationLink(value: SidebarItem.morphSettings) {
-                    Label("Morph Settings", systemImage: "slider.horizontal.3")
-                }
             }
         }
         .navigationTitle("DriftTable")
@@ -204,19 +204,15 @@ struct MainWindowView: View {
     // MARK: - Main Content
     @ViewBuilder
     private var mainContentView: some View {
-        Group {
-            if selectedSidebarItem == .keyShapes {
-                keyShapesContentView
-            } else if selectedSidebarItem == .morphSettings {
-                morphSettingsContentView
-            } else {
-                keyShapesContentView
-            }
-        }
+        // Always show key shapes - on iPhone everything is in compact tools, on iPad use inspector
+        keyShapesContentView
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            inspectorToggleToolbar
+            // Only show inspector toggle on iPad
+            if UIDevice.current.userInterfaceIdiom != .phone {
+                inspectorToggleToolbar
+            }
         }
         .onChange(of: projectViewModel.project.generatedFrames) { _, newFrames in
             updateAudioEngine(frames: newFrames)
@@ -237,7 +233,7 @@ struct MainWindowView: View {
     }
     
     private var navigationTitle: String {
-        selectedSidebarItem == .keyShapes ? "Key Shapes" : "Morph Settings"
+        "Key Shapes"
     }
     
     @ToolbarContentBuilder
@@ -293,21 +289,35 @@ struct MainWindowView: View {
     }
     
     private var portraitLayout: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                compactToolbar
-                waveformArea
-                    .frame(maxHeight: .infinity)
-                CompactToolsView(
-                    toolsViewModel: toolsViewModel,
-                    flowViewModel: flowViewModel,
-                    projectViewModel: projectViewModel
-                )
-            }
+        GeometryReader { geometry in
+            let bottomInset = geometry.safeAreaInsets.bottom
             
-            // Floating control dock at bottom - overlays content
-            FloatingControlDock(audioEngine: audioEngine)
-                .padding(.bottom, 8)
+            ZStack(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    compactToolbar
+                    waveformArea
+                        .frame(maxHeight: .infinity)
+                    
+                    // Tools view - will handle its own scrolling
+                    CompactToolsView(
+                        toolsViewModel: toolsViewModel,
+                        flowViewModel: flowViewModel,
+                        projectViewModel: projectViewModel
+                    )
+                    
+                    // Add spacer to prevent overlap with floating dock
+                    Spacer()
+                        .frame(height: 90 + bottomInset)
+                }
+                
+                // Floating control dock at bottom - overlays content
+                VStack {
+                    Spacer()
+                    FloatingControlDock(audioEngine: audioEngine)
+                        .padding(.bottom, bottomInset > 0 ? bottomInset - 8 : 8)
+                }
+                .ignoresSafeArea(.keyboard)
+            }
         }
     }
     
@@ -315,13 +325,14 @@ struct MainWindowView: View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
                 compactToolbar
-                GeometryReader { _ in
+                GeometryReader { geometry in
                     ZStack {
                         waveformContent
                         if UIDevice.current.userInterfaceIdiom == .phone {
                             inspectorOverlayButton
                         }
                     }
+                    .padding(.bottom, 100) // Space for floating dock
                 }
             }
             
@@ -464,22 +475,6 @@ struct MainWindowView: View {
         }
     }
     
-    private var morphSettingsContentView: some View {
-        VStack {
-            Text("Morph Settings")
-                .font(.headline)
-                .padding()
-            
-            Text("Use the Inspector to configure morph settings and manage key shapes.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
     
     // MARK: - Inspector (Right Sidebar)
     private var inspectorView: some View {

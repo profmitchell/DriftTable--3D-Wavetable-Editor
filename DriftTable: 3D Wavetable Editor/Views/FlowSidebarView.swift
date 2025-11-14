@@ -13,52 +13,25 @@ struct FlowSidebarView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                Text("Flow Tools")
-                    .font(.headline)
-                Spacer()
-                Button(action: {
-                    flowViewModel.applyToProject(projectViewModel)
-                }) {
+            // Apply button
+            Button(action: {
+                flowViewModel.applyToProject(projectViewModel)
+            }) {
+                HStack {
                     Image(systemName: "sparkles")
-                        .font(.caption)
+                    Text("Apply Flow Tool")
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(projectViewModel.project.generatedFrames.isEmpty)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal)
-            .padding(.top, 8)
+            .buttonStyle(.borderedProminent)
+            .disabled(projectViewModel.project.generatedFrames.isEmpty)
+            .padding(.horizontal, 12)
             
             Divider()
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    // Tool selection
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Tool")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .textCase(.uppercase)
-                        Picker("", selection: $flowViewModel.settings.selectedTool) {
-                            ForEach(FlowTool.allCases) { tool in
-                                HStack {
-                                    Image(systemName: tool.icon)
-                                    Text(tool.rawValue)
-                                }
-                                .tag(tool)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                    }
-                    .padding(.horizontal)
-                    
-                    Divider()
-                    
-                    // Tool-specific parameters
-                    toolParametersView
-                }
-            }
+            // Tool-specific parameters only - tool selection is handled by CompactToolsView
+            toolParametersView
+                .padding(.bottom, 20) // Extra padding for scrolling
         }
         .modifier(FlowToolChangeModifier(
             flowViewModel: flowViewModel,

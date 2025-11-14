@@ -25,54 +25,30 @@ struct ToolSidebarView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Shape Tools")
-                .font(.headline)
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
+        VStack(alignment: .leading, spacing: 10) {
+            // Tool parameters only - tool selection is handled by CompactToolsView
+            toolParametersView
             
-            // Tool selection - horizontal scroll for mobile
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Tool.allCases) { tool in
-                        ToolButton(
-                            tool: tool,
-                            isSelected: toolsViewModel.selectedTool == tool
-                        ) {
-                            toolsViewModel.selectedTool = tool
-                        }
+            // Global apply button (only show when frames are generated)
+            if hasGeneratedFrames {
+                Divider()
+                    .padding(.vertical, 4)
+                
+                Button(action: {
+                    toolsViewModel.applyGlobally?()
+                }) {
+                    HStack {
+                        Image(systemName: "square.stack.3d.up")
+                        Text("Apply Globally")
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 12)
+                .buttonStyle(.bordered)
+                .font(.caption)
             }
-            
-            Divider()
-            
-            // Tool parameters
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    toolParametersView
-                    
-                    // Global apply button (only show when frames are generated)
-                    if hasGeneratedFrames {
-                        Divider()
-                            .padding(.vertical, 4)
-                        
-                        Button(action: {
-                            toolsViewModel.applyGlobally?()
-                        }) {
-                            HStack {
-                                Image(systemName: "square.stack.3d.up")
-                                Text("Apply Globally")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                        .font(.caption)
-                    }
-                }
-                .padding(.horizontal, 12)
-            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 20) // Extra padding for scrolling
             // Real-time global application when parameters change
             .onChange(of: toolsViewModel.selectedTool) { _, _ in
                 if hasGeneratedFrames {
@@ -129,8 +105,6 @@ struct ToolSidebarView: View {
                     toolsViewModel.applyGlobally?()
                 }
             }
-            
-        }
     }
     
     @ViewBuilder

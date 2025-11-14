@@ -15,14 +15,19 @@ struct FloatingControlDock: View {
     @State private var showExpandedControls = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            if showExpandedControls {
-                expandedControlsView
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                if showExpandedControls {
+                    expandedControlsView
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                
+                compactDockView
+                    .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 0 : 8)
             }
-            
-            compactDockView
+            .frame(maxHeight: .infinity, alignment: .bottom)
         }
+        .frame(height: 80)
         .onAppear {
             midiManager.setNoteHandlers(
                 onNoteOn: { note, velocity in
@@ -36,146 +41,133 @@ struct FloatingControlDock: View {
     }
     
     private var compactDockView: some View {
-        HStack(spacing: 12) {
-            // Play button
-            Button(action: {
-                if audioEngine.isPlaying {
-                    audioEngine.stop()
-                } else {
-                    audioEngine.play()
-                }
-            }) {
-                Image(systemName: audioEngine.isPlaying ? "stop.fill" : "play.fill")
-                    .font(.system(size: 18, weight: .semibold))
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(!audioEngine.hasFrames)
-            
-            // Note selector
-            Menu {
-                ForEach(36..<84) { note in
-                    Button(action: {
-                        droneNote = note
-                    }) {
-                        HStack {
-                            Text(midiNoteName(note))
-                            if droneNote == note {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(midiNoteName(droneNote))
-                        .font(.system(size: 15, weight: .medium))
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10))
-                }
-                .frame(width: 60)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-            }
-            .buttonStyle(.bordered)
-            
-            // Position slider (compact)
-            HStack(spacing: 6) {
-                Image(systemName: "waveform")
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-                Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
-                    .tint(.accentColor)
-                Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .frame(width: 38, alignment: .trailing)
-            }
-            
-            // Volume slider (compact)
-            HStack(spacing: 6) {
-                Image(systemName: "speaker.wave.2")
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-                Slider(value: Binding(
-                    get: { Double(audioEngine.volume) },
-                    set: { audioEngine.setVolume(Float($0)) }
-                ), in: 0.0...1.0)
-                    .tint(.accentColor)
-                Text(String(format: "%.0f%%", audioEngine.volume * 100))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .frame(width: 38, alignment: .trailing)
-            }
-            
-            // MIDI indicator/selector
-            Menu {
-                Text("MIDI Input")
-                    .font(.headline)
-                Divider()
+        VStack(spacing: 8) {
+            // Top row: Play, Note selector, and MIDI
+            HStack(spacing: 10) {
+                // Play button
                 Button(action: {
-                    midiManager.selectDevice(nil)
+                    if audioEngine.isPlaying {
+                        audioEngine.stop()
+                    } else {
+                        audioEngine.play()
+                    }
                 }) {
-                    HStack {
-                        Text("None")
-                        if midiManager.selectedDevice == nil {
-                            Image(systemName: "checkmark")
+                    Image(systemName: audioEngine.isPlaying ? "stop.fill" : "play.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .frame(width: 54, height: 54)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!audioEngine.hasFrames)
+                
+                // Note selector
+                Menu {
+                    ForEach(36..<84) { note in
+                        Button(action: {
+                            droneNote = note
+                        }) {
+                            HStack {
+                                Text(midiNoteName(note))
+                                if droneNote == note {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
                         }
                     }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(midiNoteName(droneNote))
+                            .font(.system(size: 15, weight: .medium))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10))
+                    }
+                    .frame(minWidth: 70)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                 }
-                ForEach(midiManager.availableDevices) { device in
+                .buttonStyle(.bordered)
+                
+                // Position slider - more compact
+                HStack(spacing: 4) {
+                    Image(systemName: "waveform")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    Slider(value: $audioEngine.wavetablePosition, in: 0.0...1.0)
+                        .tint(.accentColor)
+                    Text(String(format: "%.0f%%", audioEngine.wavetablePosition * 100))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(width: 32, alignment: .trailing)
+                }
+                .frame(maxWidth: .infinity)
+                
+                // Volume slider - more compact  
+                HStack(spacing: 4) {
+                    Image(systemName: "speaker.wave.2")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    Slider(value: Binding(
+                        get: { Double(audioEngine.volume) },
+                        set: { audioEngine.setVolume(Float($0)) }
+                    ), in: 0.0...1.0)
+                        .tint(.accentColor)
+                    Text(String(format: "%.0f%%", audioEngine.volume * 100))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(width: 32, alignment: .trailing)
+                }
+                .frame(maxWidth: .infinity)
+                
+                // MIDI indicator/selector
+                Menu {
+                    Text("MIDI Input")
+                        .font(.headline)
+                    Divider()
                     Button(action: {
-                        midiManager.selectDevice(device)
+                        midiManager.selectDevice(nil)
                     }) {
                         HStack {
-                            Text(device.name)
-                            if midiManager.selectedDevice?.id == device.id {
+                            Text("None")
+                            if midiManager.selectedDevice == nil {
                                 Image(systemName: "checkmark")
                             }
                         }
                     }
-                }
-            } label: {
-                VStack(spacing: 2) {
-                    if let note = audioEngine.currentMIDINote {
-                        Text(midiNoteName(note))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.accentColor)
-                    } else {
+                    ForEach(midiManager.availableDevices) { device in
+                        Button(action: {
+                            midiManager.selectDevice(device)
+                        }) {
+                            HStack {
+                                Text(device.name)
+                                if midiManager.selectedDevice?.id == device.id {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    VStack(spacing: 2) {
                         Image(systemName: "pianokeys")
-                            .font(.system(size: 16))
+                            .font(.system(size: 14))
+                            .foregroundColor(audioEngine.currentMIDINote != nil ? .accentColor : .secondary)
+                        Text("MIDI")
+                            .font(.system(size: 8, weight: .medium))
                             .foregroundColor(.secondary)
                     }
-                    Text("MIDI")
-                        .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                    .frame(width: 50, height: 50)
                 }
-                .frame(width: 44, height: 44)
+                .buttonStyle(.bordered)
             }
-            .buttonStyle(.bordered)
-            
-            // Expand/collapse button
-            Button(action: {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    showExpandedControls.toggle()
-                }
-            }) {
-                Image(systemName: showExpandedControls ? "chevron.down" : "chevron.up")
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.bordered)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .background {
             // Modern glass morphism effect
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 0)
     }
     
     private var expandedControlsView: some View {

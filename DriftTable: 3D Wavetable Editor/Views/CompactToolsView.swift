@@ -17,11 +17,13 @@ struct CompactToolsView: View {
     enum ToolCategory: String, CaseIterable {
         case shape = "Shape"
         case flow = "Flow"
+        case morph = "Morph"
         
         var icon: String {
             switch self {
             case .shape: return "waveform.path"
             case .flow: return "wind"
+            case .morph: return "sparkles"
             }
         }
     }
@@ -58,62 +60,66 @@ struct CompactToolsView: View {
             
             Divider()
             
-            // Tool selection - compact horizontal scroll
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    if selectedToolCategory == .shape {
-                        ForEach(Tool.allCases) { tool in
-                            CompactToolButton(
-                                title: tool.rawValue,
-                                isSelected: toolsViewModel.selectedTool == tool,
-                                icon: tool.icon
-                            ) {
-                                withAnimation(.spring(response: 0.2)) {
-                                    toolsViewModel.selectedTool = tool
-                                    showToolParameters = true
+            // Tool selection - compact horizontal scroll (not shown for morph tab)
+            if selectedToolCategory != .morph {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        if selectedToolCategory == .shape {
+                            ForEach(Tool.allCases) { tool in
+                                CompactToolButton(
+                                    title: tool.rawValue,
+                                    isSelected: toolsViewModel.selectedTool == tool,
+                                    icon: tool.icon
+                                ) {
+                                    withAnimation(.spring(response: 0.2)) {
+                                        toolsViewModel.selectedTool = tool
+                                        showToolParameters = true
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        ForEach(FlowTool.allCases) { tool in
-                            CompactToolButton(
-                                title: tool.rawValue,
-                                isSelected: flowViewModel.settings.selectedTool == tool,
-                                icon: tool.icon
-                            ) {
-                                withAnimation(.spring(response: 0.2)) {
-                                    flowViewModel.settings.selectedTool = tool
-                                    showToolParameters = true
+                        } else {
+                            ForEach(FlowTool.allCases) { tool in
+                                CompactToolButton(
+                                    title: tool.rawValue,
+                                    isSelected: flowViewModel.settings.selectedTool == tool,
+                                    icon: tool.icon
+                                ) {
+                                    withAnimation(.spring(response: 0.2)) {
+                                        flowViewModel.settings.selectedTool = tool
+                                        showToolParameters = true
+                                    }
                                 }
                             }
                         }
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
             }
             
-            // Tool parameters - collapsible with animation
-            if showToolParameters {
+            // Tool parameters - collapsible with animation (except Morph tab which is always shown)
+            if showToolParameters || selectedToolCategory == .morph {
                 VStack(spacing: 0) {
                     Divider()
                     
-                    // Collapse button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.2)) {
-                            showToolParameters = false
+                    // Collapse button (only for Shape and Flow tabs)
+                    if selectedToolCategory != .morph {
+                        Button(action: {
+                            withAnimation(.spring(response: 0.2)) {
+                                showToolParameters = false
+                            }
+                        }) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "chevron.up")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                            .padding(.vertical, 4)
                         }
-                    }) {
-                        HStack {
-                            Spacer()
-                            Image(systemName: "chevron.up")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.secondary)
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                     
                     ScrollView {
                         VStack(spacing: 12) {
@@ -122,17 +128,22 @@ struct CompactToolsView: View {
                                     toolsViewModel: toolsViewModel,
                                     projectViewModel: projectViewModel
                                 )
-                            } else {
+                            } else if selectedToolCategory == .flow {
                                 FlowSidebarView(
                                     flowViewModel: flowViewModel,
                                     projectViewModel: projectViewModel
                                 )
+                            } else {
+                                // Morph tab
+                                morphControlsView
                             }
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
+                        .padding(.bottom, 10)
                     }
-                    .frame(maxHeight: 220)
+                    .frame(maxHeight: selectedToolCategory == .morph ? 280 : 200)
+                    .scrollIndicators(.hidden)
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .top).combined(with: .opacity),
@@ -146,6 +157,126 @@ struct CompactToolsView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+    
+    // Morph controls view
+    private var morphControlsView: some View {
+        VStack(spacing: 12) {
+            // Key shapes mini list
+            VStack(spacing: 6) {
+                HStack {
+                    Text("Key Shapes")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Button(action: { projectViewModel.addKeyShape() }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.caption)
+                    }
+                }
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(projectViewModel.project.keyShapes) { keyShape in
+                            Button(action: {
+                                projectViewModel.selectKeyShape(keyShape.id)
+                            }) {
+                                Text(keyShape.id)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundColor(projectViewModel.selectedKeyShapeId == keyShape.id ? .white : .primary)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(projectViewModel.selectedKeyShapeId == keyShape.id ? Color.accentColor : Color(UIColor.tertiarySystemBackground))
+                                    )
+                            }
+                            .contextMenu {
+                                Button(action: { projectViewModel.duplicateKeyShape(keyShape.id) }) {
+                                    Label("Duplicate", systemImage: "doc.on.doc")
+                                }
+                                Button(role: .destructive, action: { projectViewModel.deleteKeyShape(keyShape.id) }) {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .disabled(projectViewModel.project.keyShapes.count <= 1)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Divider()
+            
+            // Morph Settings
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Morph Settings")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                // Frame Count
+                HStack {
+                    Text("Frames")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: Binding(
+                        get: { projectViewModel.project.morphSettings.frameCount },
+                        set: { projectViewModel.project.morphSettings.frameCount = $0 }
+                    )) {
+                        ForEach(MorphSettings.frameCountOptions, id: \.self) { count in
+                            Text("\(count)").tag(count)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                
+                // Morph Style
+                HStack {
+                    Text("Style")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: Binding(
+                        get: { projectViewModel.project.morphSettings.morphStyle },
+                        set: { projectViewModel.project.morphSettings.morphStyle = $0 }
+                    )) {
+                        ForEach(MorphStyle.allCases, id: \.self) { style in
+                            Text(style.rawValue).tag(style)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+            }
+            
+            Divider()
+            
+            // Action buttons
+            VStack(spacing: 8) {
+                Button(action: {
+                    projectViewModel.generateFrames()
+                }) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text("Generate Frames")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(projectViewModel.project.keyShapes.count < 2)
+                
+                Button(action: {
+                    projectViewModel.normalizeFrames()
+                }) {
+                    HStack {
+                        Image(systemName: "waveform")
+                        Text("Normalize")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(projectViewModel.project.generatedFrames.isEmpty)
+            }
+        }
     }
 }
 
