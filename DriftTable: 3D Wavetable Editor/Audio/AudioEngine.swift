@@ -37,6 +37,7 @@ class AudioEngine: ObservableObject {
     private var smoothedVolume: Float = 0.7
     private var smoothedWavetablePosition: Float = 0.5
     private let parameterSmoothingFactor: Float = 0.01
+    private let wavetablePositionSmoothingFactor: Float = 0.05 // Faster smoothing for position to reduce clicks
     
     init() {
         setupAudioEngine()
@@ -270,10 +271,7 @@ class AudioEngine: ObservableObject {
         let sampleRateFloat = Float(sampleRate)
         // Always sync frequency with current MIDI note if set
         if let currentNote = currentMIDINote {
-            let newFrequency = midiNoteToFrequency(currentNote)
-            if abs(frequency - newFrequency) > 0.1 { // Only update if significantly different
-                frequency = newFrequency
-            }
+            frequency = midiNoteToFrequency(currentNote)
         }
         let phaseIncrement = frequency / sampleRateFloat
         
@@ -296,8 +294,8 @@ class AudioEngine: ObservableObject {
                 let sample1 = currentSingleCycle[sampleIndex1]
                 finalValue = sample0 + (sample1 - sample0) * sampleT
             } else {
-                // Wavetable playback
-                smoothedWavetablePosition += (wavetablePosition - smoothedWavetablePosition) * parameterSmoothingFactor
+                // Wavetable playback with smooth position changes to prevent clicks
+                smoothedWavetablePosition += (wavetablePosition - smoothedWavetablePosition) * wavetablePositionSmoothingFactor
                 let position = max(0.0, min(smoothedWavetablePosition, 1.0))
                 let frameIndex = position * Float(currentFrames.count - 1)
                 let frameIndex0 = Int(floor(frameIndex))
@@ -308,7 +306,7 @@ class AudioEngine: ObservableObject {
                 let frame0 = currentFrames[frameIndex0]
                 let frame1 = currentFrames[frameIndex1]
                 
-                // Interpolate within frame based on phase
+                // Interpolate within frame based on phase (phase is continuous, no jumps)
                 let sampleIndex = Int(phase * Float(frame0.count)) % frame0.count
                 let sampleIndex1 = (sampleIndex + 1) % frame0.count
                 
@@ -316,10 +314,12 @@ class AudioEngine: ObservableObject {
                 let sample1 = frame0[sampleIndex1]
                 let sampleT = (phase * Float(frame0.count)) - Float(sampleIndex)
                 
-                // Interpolate between frames
+                // Smooth interpolation between frames to prevent clicks
                 let value0 = sample0 + (sample1 - sample0) * sampleT
                 let value1 = frame1[sampleIndex] + (frame1[sampleIndex1] - frame1[sampleIndex]) * sampleT
-                finalValue = value0 + (value1 - value0) * frameT
+                // Use smoothstep for frame interpolation to reduce discontinuities
+                let smoothFrameT = frameT * frameT * (3.0 - 2.0 * frameT)
+                finalValue = value0 + (value1 - value0) * smoothFrameT
             }
             
             smoothedVolume += (volume - smoothedVolume) * parameterSmoothingFactor

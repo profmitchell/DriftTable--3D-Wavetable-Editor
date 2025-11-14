@@ -65,9 +65,11 @@ struct FloatingControlDock: View {
                     ForEach(12..<109) { note in // C0 to C8 (MIDI notes 12-108)
                         Button(action: {
                             droneNote = note
-                            // Update frequency immediately if playing
-                            if isDronePlaying {
-                                audioEngine.noteOn(note: note, velocity: 0.7)
+                            // Always update frequency immediately, even if not playing
+                            audioEngine.noteOn(note: note, velocity: 0.7)
+                            // If not playing, start playback
+                            if !isDronePlaying {
+                                isDronePlaying = true
                             }
                         }) {
                             HStack {
