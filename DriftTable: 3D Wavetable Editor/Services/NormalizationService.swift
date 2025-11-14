@@ -9,7 +9,7 @@ import Foundation
 
 struct NormalizationService {
     /// Normalize a single frame to ensure it's audible and within bounds
-    nonisolated static func normalizeFrame(_ frame: [Float]) -> [Float] {
+    static func normalizeFrame(_ frame: [Float]) -> [Float] {
         guard !frame.isEmpty else { return frame }
         
         var normalized = frame
@@ -27,7 +27,7 @@ struct NormalizationService {
     }
     
     /// Normalize all frames in a wavetable
-    nonisolated static func normalizeWavetable(_ frames: [[Float]]) -> [[Float]] {
+    static func normalizeWavetable(_ frames: [[Float]]) -> [[Float]] {
         return frames.map { normalizeFrame($0) }
     }
     

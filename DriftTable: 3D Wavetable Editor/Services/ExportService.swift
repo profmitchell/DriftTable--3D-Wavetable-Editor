@@ -10,7 +10,7 @@ import AVFoundation
 
 struct ExportService {
     /// Export wavetable frames as a Serum-compatible WAV file
-    nonisolated static func exportWavetable(frames: [[Float]], sampleRate: Double, to url: URL) throws {
+    static func exportWavetable(frames: [[Float]], sampleRate: Double, to url: URL) throws {
         guard !frames.isEmpty else {
             throw ExportError.noFrames
         }

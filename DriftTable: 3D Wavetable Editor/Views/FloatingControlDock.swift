@@ -178,30 +178,22 @@ struct FloatingControlDock: View {
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 0)
-        .sheet(item: $activeSlider) { slider in
-            switch slider {
-            case .position:
-                SliderControlSheet(
-                    title: "Wavetable Position",
-                    value: Binding(
-                        get: { Double(audioEngine.wavetablePosition) },
-                        set: { audioEngine.wavetablePosition = Float($0) }
-                    ),
-                    formattedValue: { value in
-                        String(format: "%.0f%%", value * 100)
-                    }
-                )
-            case .volume:
-                SliderControlSheet(
-                    title: "Volume",
-                    value: Binding(
-                        get: { Double(audioEngine.volume) },
-                        set: { audioEngine.setVolume(Float($0)) }
-                    ),
-                    formattedValue: { value in
-                        String(format: "%.0f%%", value * 100)
-                    }
-                )
+        .overlay {
+            if let slider = activeSlider {
+                ZStack {
+                    Color.black.opacity(0.001)
+                        .contentShape(Rectangle())
+                        .onTapGesture(perform: dismissSlider)
+                    SliderOverlayCard(
+                        slider: slider,
+                        value: binding(for: slider),
+                        formattedValue: { value in String(format: "%.0f%%", value * 100) },
+                        onClose: dismissSlider
+                    )
+                    .offset(y: -120)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(1)
             }
         }
     }
@@ -253,6 +245,27 @@ struct FloatingControlDock: View {
         let noteIndex = note % 12
         return "\(noteNames[noteIndex])\(octave)"
     }
+    
+    private func binding(for slider: SliderType) -> Binding<Double> {
+        switch slider {
+        case .position:
+            return Binding(
+                get: { Double(audioEngine.wavetablePosition) },
+                set: { audioEngine.wavetablePosition = Float($0) }
+            )
+        case .volume:
+            return Binding(
+                get: { Double(audioEngine.volume) },
+                set: { audioEngine.setVolume(Float($0)) }
+            )
+        }
+    }
+    
+    private func dismissSlider() {
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
+            activeSlider = nil
+        }
+    }
 }
 
 private enum SliderType: Identifiable {
@@ -265,37 +278,57 @@ private enum SliderType: Identifiable {
         case .volume: return 1
         }
     }
+    
+    var title: String {
+        switch self {
+        case .position: return "Wavetable Position"
+        case .volume: return "Volume"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .position: return "waveform"
+        case .volume: return "speaker.wave.2.fill"
+        }
+    }
 }
 
-private struct SliderControlSheet: View {
-    let title: String
+private struct SliderOverlayCard: View {
+    let slider: SliderType
     @Binding var value: Double
     var formattedValue: (Double) -> String
-    
-    @Environment(\.dismiss) private var dismiss
+    var onClose: () -> Void
     
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(title)
-                    .font(.title3)
-                    .bold()
-                
-                Slider(value: $value, in: 0...1)
-                
-                Text(formattedValue(value))
-                    .font(.headline)
+        VStack(spacing: 12) {
+            HStack {
+                Label(slider.title, systemImage: slider.icon)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                
                 Spacer()
-            }
-            .padding()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
                 }
+                .buttonStyle(.plain)
             }
+            
+            Slider(value: $value, in: 0...1)
+                .tint(.accentColor)
+            
+            Text(formattedValue(value))
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .padding(16)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(Color.white.opacity(0.2))
+        )
     }
 }

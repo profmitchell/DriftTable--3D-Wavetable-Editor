@@ -10,6 +10,7 @@ import SwiftUI
 struct FlowSidebarView: View {
     @ObservedObject var flowViewModel: FlowViewModel
     @ObservedObject var projectViewModel: ProjectViewModel
+    @State private var livePreviewEnabled = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -27,16 +28,30 @@ struct FlowSidebarView: View {
             .disabled(projectViewModel.project.generatedFrames.isEmpty)
             .padding(.horizontal, 12)
             
+            Toggle(isOn: $livePreviewEnabled) {
+                Label("Live Preview (beta)", systemImage: "bolt.circle")
+                    .font(.subheadline)
+            }
+            .toggleStyle(.switch)
+            .padding(.horizontal, 12)
+            .tint(.accentColor)
+            
+            Text("Live preview applies tools to every frame while you drag sliders. Turn it off if playback glitches.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 12)
+            
             Divider()
             
             // Tool-specific parameters only - tool selection is handled by CompactToolsView
             toolParametersView
                 .padding(.bottom, 20) // Extra padding for scrolling
         }
-        .modifier(FlowToolChangeModifier(
-            flowViewModel: flowViewModel,
-            projectViewModel: projectViewModel
-        ))
+        .modifier(
+            livePreviewEnabled
+                ? AnyViewModifier(FlowToolChangeModifier(flowViewModel: flowViewModel, projectViewModel: projectViewModel))
+                : AnyViewModifier(IdentityModifier())
+        )
     }
     
     @ViewBuilder
@@ -301,3 +316,22 @@ struct FlowSidebarView: View {
     }
 }
 
+private struct IdentityModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+    }
+}
+
+private struct AnyViewModifier: ViewModifier {
+    let apply: (Content) -> AnyView
+    
+    init<M: ViewModifier>(_ modifier: M) {
+        self.apply = { content in
+            AnyView(modifier.body(content: content as! _ViewModifier_Content<M>))
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        apply(content)
+    }
+}

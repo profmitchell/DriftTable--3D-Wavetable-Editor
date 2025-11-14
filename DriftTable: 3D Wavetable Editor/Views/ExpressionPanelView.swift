@@ -12,6 +12,7 @@ struct ExpressionPanelView: View {
     @State private var lastError: String? = nil
     @State private var detectedMode: ExpressionMode? = nil
     @State private var isProcessing: Bool = false
+    @State private var showBrowser: Bool = false
     
     @Binding var frames: [[Float]]
     @Binding var selectedFrameIndex: Int
@@ -22,9 +23,28 @@ struct ExpressionPanelView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header
-            Text("Math Expression Generator")
-                .font(.headline)
+            // Header with Browse button
+            HStack {
+                Text("Math Expression Generator")
+                    .font(.headline)
+                
+                Spacer()
+                
+                Button(action: { showBrowser = true }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "books.vertical")
+                            .font(.caption)
+                        Text("Browse")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(6)
+                }
+            }
             
             // Expression editor
             VStack(alignment: .leading, spacing: 4) {
@@ -39,7 +59,7 @@ struct ExpressionPanelView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                     )
-                    .onChange(of: expressionText) { _ in
+                    .onChange(of: expressionText) {
                         updateDetectedMode()
                     }
             }
@@ -122,25 +142,57 @@ struct ExpressionPanelView: View {
                     .cornerRadius(8)
             }
             
-            // Example expressions
-            DisclosureGroup("Example Expressions") {
-                VStack(alignment: .leading, spacing: 8) {
-                    exampleButton("Sine Wave", "sin(2 * pi * x)")
-                    exampleButton("Square Wave", "sign(sin(2 * pi * x))")
-                    exampleButton("Sawtooth", "x")
-                    exampleButton("Triangle", "abs(x) * 2 - 1")
-                    exampleButton("PWM", "x < 0.5 ? 1 : -1")
-                    exampleButton("Harmonics", "sin(2*pi*x) + 0.5*sin(4*pi*x) + 0.25*sin(6*pi*x)")
-                    exampleButton("Evolving (multi)", "sin(2*pi*x) * (1 - y) + sign(sin(2*pi*x)) * y")
-                    exampleButton("Morph Sine→Square", "sin(2*pi*x) + z * abs(sin(2*pi*x))")
+            // Quick examples and save
+            HStack(spacing: 12) {
+                Button(action: saveCurrentFormula) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.caption)
+                        Text("Save")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
                 }
-                .padding(.vertical, 4)
+                .buttonStyle(.bordered)
+                .disabled(expressionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                
+                Menu {
+                    Button("Sine Wave") { expressionText = "sin(2 * pi * x)" }
+                    Button("Square Wave") { expressionText = "sign(sin(2 * pi * x))" }
+                    Button("Sawtooth") { expressionText = "x" }
+                    Button("Triangle") { expressionText = "abs(x) * 2 - 1" }
+                    Button("Harmonics") { expressionText = "sin(2*pi*x) + 0.5*sin(4*pi*x) + 0.25*sin(6*pi*x)" }
+                    if frames.count > 1 {
+                        Divider()
+                        Button("Morphing") { expressionText = "sin(2*pi*x) * (1 - y) + sign(sin(2*pi*x)) * y" }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "sparkles")
+                            .font(.caption)
+                        Text("Quick")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(.bordered)
             }
-            .font(.caption)
         }
         .padding()
         .onAppear {
             updateDetectedMode()
+        }
+        .sheet(isPresented: $showBrowser) {
+            FormulaBrowserView(
+                isMultiFrame: detectedMode == .multiFrame || frames.count > 1
+            ) { expression in
+                expressionText = expression
+                updateDetectedMode()
+            }
         }
     }
     
@@ -177,6 +229,12 @@ struct ExpressionPanelView: View {
     }
     
     // MARK: - Actions
+    
+    private func saveCurrentFormula() {
+        // Show a simple save sheet
+        showBrowser = true
+        // The browser will handle adding new formulas
+    }
     
     private func updateDetectedMode() {
         lastError = nil
