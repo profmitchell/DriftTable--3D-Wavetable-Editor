@@ -10,7 +10,7 @@ import SwiftUI
 struct ToolSidebarView: View {
     @ObservedObject var toolsViewModel: ToolsViewModel
     @ObservedObject var projectViewModel: ProjectViewModel
-    @State private var livePreviewEnabled = false
+    @State private var livePreviewEnabled = true
     
     init(toolsViewModel: ToolsViewModel, projectViewModel: ProjectViewModel) {
         self.toolsViewModel = toolsViewModel
@@ -324,4 +324,3 @@ struct ToolButton: View {
         .buttonStyle(.plain)
     }
 }
-
